@@ -12,17 +12,24 @@ import { useStandings } from '@/hooks/useSportsData';
 // Available competitions with comprehensive global coverage
 const availableCompetitions = [
   // North America
-  { id: 5013, name: "National Women's Soccer League", shortName: "NWSL", logo: "🇺🇸" },
-  { id: 5012, name: "Northern Super League", shortName: "NSL", logo: "🇨🇦" },
+  { id: 5013, name: "NWSL", shortName: "NWSL", logo: "🇺🇸" },
+  { id: 5012, name: "NSL", shortName: "NSL", logo: "🇨🇦" },
+  { id: 5021, name: "Liga MX Femenil", shortName: "Liga MX", logo: "🇲🇽" },
+  { id: 5027, name: "Concacaf W Champions Cup", shortName: "Concacaf W", logo: "🏆" },
   
   // Europe - Top Tier  
-  { id: 5014, name: "Barclays Women's Super League", shortName: "WSL", logo: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
+  { id: 5014, name: "WSL", shortName: "WSL", logo: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
   { id: 5015, name: "Liga F", shortName: "Liga F", logo: "🇪🇸" },
   { id: 5016, name: "D1 Arkema", shortName: "D1 Arkema", logo: "🇫🇷" },
-  { id: 5017, name: "Google Pixel Frauen-Bundesliga", shortName: "Bundesliga", logo: "🇩🇪" },
+  { id: 5017, name: "Frauen-Bundesliga", shortName: "Bundesliga", logo: "🇩🇪" },
+  { id: 5022, name: "Damallsvenskan", shortName: "Damallsvenskan", logo: "🇸🇪" },
+  { id: 5023, name: "Toppserien", shortName: "Toppserien", logo: "🇳🇴" },
+  { id: 5024, name: "Brasileirão", shortName: "Brasileirão", logo: "🇧🇷" },
   
   // Asia & Global Expansion
   { id: 5018, name: "WE League", shortName: "WE League", logo: "🇯🇵" },
+  { id: 5020, name: "A-League Women", shortName: "A-League W", logo: "🇦🇺" },
+  { id: 5025, name: "Chinese WSL", shortName: "China WSL", logo: "🇨🇳" },
 ];
 
 
@@ -232,3 +239,5 @@ export default function StandingsTab() {
     </div>
   );
 }
+
+

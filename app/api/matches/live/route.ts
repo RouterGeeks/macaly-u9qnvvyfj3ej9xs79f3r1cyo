@@ -5,21 +5,20 @@ import { mockMatches } from '@/lib/mockData';
 // Convert mock data to LiveMatch format with proper league mapping
 function convertMockToLiveMatch(mockMatch: any): LiveMatch {
   const leagueMapping = {
-    'NWSL': { id: 5013, name: 'National Women\'s Soccer League (NWSL)', emblem: '🇺🇸' },
-    'WSL': { id: 5014, name: 'Barclays Women\'s Super League (WSL)', emblem: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
+    'NWSL': { id: 5013, name: 'NWSL', emblem: '🇺🇸' },
+    'WSL': { id: 5014, name: 'WSL', emblem: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
     'Liga F': { id: 5015, name: 'Liga F', emblem: '🇪🇸' },
     'D1 Arkema': { id: 5016, name: 'D1 Arkema', emblem: '🇫🇷' },
-    'Frauen-Bundesliga': { id: 5017, name: 'Google Pixel Frauen-Bundesliga', emblem: '🇩🇪' },
-    'Serie A Femminile': { id: 5019, name: 'Serie A Femminile', emblem: '🇮🇹' },
+    'Frauen-Bundesliga': { id: 5017, name: 'Frauen-Bundesliga', emblem: '🇩🇪' },
     'WE League': { id: 5018, name: 'WE League', emblem: '🇯🇵' },
     'A-League Women': { id: 5020, name: 'A-League Women', emblem: '🇦🇺' },
     'Liga MX Femenil': { id: 5021, name: 'Liga MX Femenil', emblem: '🇲🇽' },
     'Damallsvenskan': { id: 5022, name: 'Damallsvenskan', emblem: '🇸🇪' },
     'Toppserien': { id: 5023, name: 'Toppserien', emblem: '🇳🇴' },
-    'Brasileirão Feminino': { id: 5024, name: 'Campeonato Brasileiro de Futebol Feminino', emblem: '🇧🇷' },
-    'Chinese Women\'s Super League': { id: 5025, name: 'Chinese Women\'s Super League', emblem: '🇨🇳' },
-    'NSL': { id: 5012, name: 'Northern Super League', emblem: '🇨🇦' },
-    'UWCL': { id: 5026, name: 'UEFA Women\'s Champions League', emblem: '🏆' }
+    'Brasileirão': { id: 5024, name: 'Brasileirão', emblem: '🇧🇷' },
+    'Chinese WSL': { id: 5025, name: 'Chinese WSL', emblem: '🇨🇳' },
+    'NSL': { id: 5012, name: 'NSL', emblem: '🇨🇦' },
+    'Concacaf W Champions Cup': { id: 5027, name: 'Concacaf W Champions Cup', emblem: '🏆' }
   };
 
   const competition = leagueMapping[mockMatch.league] || { 
@@ -68,55 +67,68 @@ export async function GET() {
   console.log('🚀 API: Fetching LIVE women\'s soccer matches only');
   
   try {
-    // Get our mock women's soccer matches first
+    // Allowed leagues (women's only) for the Live tab
+    const allowedLeagues = new Set<string>([
+      'NSL', // Canada
+      'A-League Women',        // Australia
+      'Chinese WSL', // China
+      'Liga MX Femenil',       // Mexico
+      'Damallsvenskan',        // Sweden
+      'Toppserien',            // Norway
+      'Brasileirão', // Brazil
+      'WE League',             // Japan
+      'NWSL', // USA
+      'WSL', // UK
+      'Liga F',                // Spain
+      'D1 Arkema',             // France
+      'Frauen-Bundesliga', // Germany
+      'Concacaf W Champions Cup' // North America
+    ]);
+
+    // Get our mock women's soccer matches first and restrict to LIVE + allowed leagues
     const womensSoccerMatches = mockMatches
       .map(mockMatch => convertMockToLiveMatch(mockMatch))
-      .filter(match => match.status === 'LIVE' || match.status === 'FINISHED' || match.status === 'SCHEDULED');
+      .filter(match => match.status === 'LIVE' && allowedLeagues.has(match.competition.name));
     
-    console.log(`✅ API: Found ${womensSoccerMatches.length} women's soccer matches from our data`);
-    
-    // Filter to prioritize live matches
-    const liveMatches = womensSoccerMatches.filter(match => match.status === 'LIVE');
-    const finishedMatches = womensSoccerMatches.filter(match => match.status === 'FINISHED').slice(0, 8);
-    const upcomingMatches = womensSoccerMatches.filter(match => match.status === 'SCHEDULED').slice(0, 8);
-    
-    // Combine all women's soccer matches
-    const allWomensMatches = [...liveMatches, ...finishedMatches, ...upcomingMatches];
-    
-    console.log(`🏆 API: Returning ${allWomensMatches.length} women's soccer matches (${liveMatches.length} live, ${finishedMatches.length} finished, ${upcomingMatches.length} upcoming)`);
-    
+    console.log(`✅ API: Found ${womensSoccerMatches.length} LIVE women\'s matches for specified leagues`);
+
     return NextResponse.json({
       success: true,
       configured: true,
-      matches: allWomensMatches,
-      count: allWomensMatches.length,
-      message: allWomensMatches.length > 0 ? 
-        `${allWomensMatches.length} women's soccer matches found! ${liveMatches.length > 0 ? `🔴 ${liveMatches.length} LIVE NOW!` : '⚽'}` : 
-        'No women\'s soccer matches at this time 😴',
-      leagues: 'NWSL, WSL, Liga F, D1 Arkema, Frauen-Bundesliga, WE League, A-League Women, Liga MX Femenil, NSL, Chinese WSL, Brasileirão Feminino'
+      matches: womensSoccerMatches,
+      count: womensSoccerMatches.length,
+      message: womensSoccerMatches.length > 0 ? 
+        `${womensSoccerMatches.length} live matches found across NSL 🇨🇦, A-League Women 🇦🇺, China WSL 🇨🇳, Liga MX Femenil 🇲🇽, Damallsvenskan 🇸🇪, Toppserien 🇳🇴, Brasileirão Feminino 🇧🇷, WE League 🇯🇵, NWSL 🇺🇸, WSL 🏴󠁧󠁢󠁥󠁮󠁧󠁿, Liga F 🇪🇸, D1 Arkema 🇫🇷, Frauen-Bundesliga 🇩🇪, Concacaf W Champions Cup 🏆` : 
+        'No live matches right now for the selected leagues. Check back soon!'
     });
 
   } catch (error) {
     console.error('❌ API Error (women\'s soccer matches):', error);
-    
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     
-    // Still return some mock data even on error
-    const fallbackMatches = mockMatches
-      .slice(0, 5)
-      .map(mockMatch => convertMockToLiveMatch(mockMatch));
-    
+    // On error, return an empty but successful response to avoid showing non-live data
     return NextResponse.json({
-      success: false,
+      success: true,
       configured: true,
-      matches: fallbackMatches,
-      count: fallbackMatches.length,
+      matches: [],
+      count: 0,
       error: 'API temporarily unavailable',
       details: errorMessage,
-      message: 'Showing sample women\'s soccer data - API will be restored soon'
-    }, { status: 200 }); // Return 200 to prevent frontend errors
+      message: 'No live matches due to a temporary issue. Please refresh shortly.'
+    }, { status: 200 });
   }
 }
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 30; // Revalidate every 30 seconds for live scores
+
+
+
+
+
+
+
+
+
+
+

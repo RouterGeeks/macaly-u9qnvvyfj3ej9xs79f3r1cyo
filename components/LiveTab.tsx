@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle, Wifi } from 'lucide-react';
 import { useLiveMatches } from '@/hooks/useSportsData';
+import type { LiveMatch } from '@/lib/sportsApi';
 
 export default function LiveTab() {
   const { data: matches, loading, error, success } = useLiveMatches();
@@ -14,17 +15,30 @@ export default function LiveTab() {
   console.log('LiveTab state:', { matchCount: matches?.length || 0, loading, error, success });
 
   // Categorize matches
+  const allowedLeagues = new Set<string>([
+    'NSL', // Canada
+    'A-League Women', // Australia
+    'Chinese WSL', // China
+    'Liga MX Femenil', // Mexico
+    'Damallsvenskan', // Sweden
+    'Toppserien', // Norway
+    'Brasileirão', // Brazil
+    'WE League', // Japan
+    'NWSL', // USA
+    'WSL', // UK
+    'Liga F', // Spain
+    'D1 Arkema', // France
+    'Frauen-Bundesliga', // Germany
+    'Concacaf W Champions Cup' // North America
+  ]);
+
   const liveMatches = (matches || []).filter((match) => 
-    match.status === 'LIVE' || match.status === 'IN_PLAY'
+    (match.status === 'LIVE' || match.status === 'IN_PLAY') &&
+    allowedLeagues.has(match.competition?.name || '')
   );
   
-  const recentResults = (matches || []).filter((match) => 
-    match.status === 'FINISHED'
-  ).slice(0, 5);
-  
-  const upcomingMatches = (matches || []).filter((match) => 
-    match.status === 'SCHEDULED'
-  ).slice(0, 5);
+  const recentResults: LiveMatch[] = [];
+  const upcomingMatches: LiveMatch[] = [];
 
   return (
     <div className="p-2 sm:p-4 space-y-4 sm:space-y-6">
@@ -75,7 +89,7 @@ export default function LiveTab() {
       )}
 
       {/* Recent Results */}
-      {!loading && success && recentResults.length > 0 && (
+      {false && !loading && success && recentResults && recentResults.length > 0 && (
         <section>
           <SectionHeader 
             title="Recent Results" 
@@ -91,7 +105,7 @@ export default function LiveTab() {
       )}
 
       {/* Upcoming Fixtures */}
-      {!loading && success && upcomingMatches.length > 0 && (
+      {false && !loading && success && upcomingMatches && upcomingMatches.length > 0 && (
         <section>
           <SectionHeader 
             title="Next Up" 
@@ -117,3 +131,6 @@ export default function LiveTab() {
     </div>
   );
 }
+
+
+
