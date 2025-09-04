@@ -80,6 +80,9 @@ export const mockTeams: Team[] = [
   { name: "Club de Fútbol Monterrey Femenil", shortName: "MTY", logo: "🔵", color: "#003DA5" },
   { name: "Club América Femenil", shortName: "AME", logo: "🦅", color: "#FFD700" },
   { name: "Chivas Femenil", shortName: "CHV", logo: "🔴", color: "#E31E24" },
+  { name: "LD Alajuelense Femenil", shortName: "ALA", logo: "🔴", color: "#DC143C" },
+  { name: "Chorrillo FC", shortName: "CHO", logo: "⚽", color: "#1E3A8A" },
+  { name: "CF Pachuca Femenil", shortName: "PAC", logo: "💙", color: "#0066CC" },
 
   // Damallsvenskan (Sweden) 🇸🇪
   { name: "FC Rosengård", shortName: "ROS", logo: "🌹", color: "#FF69B4" },
@@ -181,54 +184,6 @@ export const mockMatches: Match[] = [
     date: "2025-09-01",
     time: "12:00",
     venue: "Casey Fields"
-  },
-  {
-    id: "scheduled-1",
-    homeTeam: mockTeams[1], // Orlando Pride
-    awayTeam: mockTeams[33], // Club América Femenil
-    homeScore: 0,
-    awayScore: 0,
-    status: 'scheduled',
-    league: "Concacaf W Champions Cup",
-    date: "2025-09-05",
-    time: "22:30",
-    venue: "Estadio Azteca"
-  },
-  {
-    id: "scheduled-2",
-    homeTeam: mockTeams[34], // Chivas Femenil
-    awayTeam: mockTeams[0], // Angel City FC
-    homeScore: 0,
-    awayScore: 0,
-    status: 'scheduled',
-    league: "Concacaf W Champions Cup",
-    date: "2025-09-06",
-    time: "20:00",
-    venue: "Estadio Akron"
-  },
-  {
-    id: "scheduled-3",
-    homeTeam: mockTeams[32], // Club de Fútbol Monterrey Femenil
-    awayTeam: mockTeams[2], // Portland Thorns
-    homeScore: 0,
-    awayScore: 0,
-    status: 'scheduled',
-    league: "Concacaf W Champions Cup",
-    date: "2025-09-07",
-    time: "21:15",
-    venue: "Estadio BBVA"
-  },
-  {
-    id: "scheduled-4",
-    homeTeam: mockTeams[6], // Kansas City Current
-    awayTeam: mockTeams[42], // Vancouver Rise FC
-    homeScore: 0,
-    awayScore: 0,
-    status: 'scheduled',
-    league: "Concacaf W Champions Cup",
-    date: "2025-09-08",
-    time: "19:30",
-    venue: "CPKC Stadium"
   },
 
   // 🇺🇸 NWSL - USA's Premier League
@@ -505,6 +460,8 @@ export const getMatchesByLeague = (league: string) => {
   console.log('Getting matches for league:', league);
   return mockMatches.filter(match => match.league === league);
 };
+
+
 
 
 
