@@ -239,18 +239,23 @@ class SportsDataService {
     
     return (
       (sport.includes('soccer') || sport.includes('football')) &&
-      (leagueName.includes('nwsl') ||
-       leagueName.includes('women') ||
-       leagueName.includes('female') ||
-       leagueName.includes('wsl') ||
-       leagueName.includes('super league') ||
-       leagueName.includes('northern super league') ||
-       leagueName.includes('nsl') ||
-       leagueName.includes('frauen') ||
-       leagueName.includes('féminine') ||
-       leagueName.includes('femminile') ||
-       leagueName.includes('uwcl') ||
-       leagueName.includes('champions league'))
+      (
+        leagueName.includes('nwsl') ||
+        leagueName.includes('women') ||
+        leagueName.includes('female') ||
+        leagueName.includes('wsl') ||
+        leagueName.includes('super league') ||
+        leagueName.includes('northern super league') ||
+        leagueName.includes('nsl') ||
+        leagueName.includes('frauen') ||
+        leagueName.includes('féminine') ||
+        leagueName.includes('femminile') ||
+        leagueName.includes('uwcl') ||
+        leagueName.includes('champions league') ||
+        // Concacaf W Champions Cup variants
+        (leagueName.includes('concacaf') && (leagueName.includes("women") || leagueName.includes("women's") || leagueName.includes(' w ') || leagueName.endsWith(' w'))) &&
+        leagueName.includes('champions cup')
+      )
     );
   }
 

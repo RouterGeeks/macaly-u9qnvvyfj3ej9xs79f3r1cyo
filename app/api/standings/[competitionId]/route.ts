@@ -33,13 +33,20 @@ function generateMockStandings(leagueId: number): Standing[] {
 
 function getLeagueName(leagueId: number): string {
   const leagueNames: { [key: number]: string } = {
-    5012: "Northern Super League (NSL) 🇨🇦",
-    5013: "National Women's Soccer League (NWSL) 🇺🇸",
-    5014: "Barclays Women's Super League (WSL) 🏴󠁧󠁢󠁥󠁮󠁧󠁿",
-    5015: "Liga F 🇪🇸",
-    5016: "D1 Arkema 🇫🇷",
-    5017: "Google Pixel Frauen-Bundesliga 🇩🇪",
-    5018: "WE League 🇯🇵"
+    5012: "NSL",
+    5013: "NWSL",
+    5014: "WSL",
+    5015: "Liga F",
+    5016: "D1 Arkema",
+    5017: "Frauen-Bundesliga",
+    5018: "WE League",
+    5020: "A-League Women",
+    5021: "Liga MX Femenil",
+    5022: "Damallsvenskan",
+    5023: "Toppserien",
+    5024: "Brasileirão",
+    5025: "Chinese WSL",
+    5027: "Concacaf W Champions Cup"
   };
   return leagueNames[leagueId] || "Women's League";
 }
@@ -104,6 +111,55 @@ function getLeagueStandings(leagueId: number) {
         { team: mockTeams[30], points: 38, won: 12, draw: 2, lost: 4, goalsFor: 34, goalsAgainst: 15 }, // Urawa Red Diamonds Ladies
         { team: mockTeams[29], points: 35, won: 11, draw: 2, lost: 5, goalsFor: 31, goalsAgainst: 18 }, // INAC Kobe Leonessa
         { team: mockTeams[31], points: 32, won: 10, draw: 2, lost: 6, goalsFor: 28, goalsAgainst: 22 }, // Tokyo Verdy Beleza
+      ];
+    
+    case 5020: // A-League Women 🇦🇺
+      return [
+        { team: mockTeams[29], points: 42, won: 13, draw: 3, lost: 2, goalsFor: 38, goalsAgainst: 12 }, // Melbourne City FC
+        { team: mockTeams[30], points: 35, won: 11, draw: 2, lost: 5, goalsFor: 32, goalsAgainst: 18 }, // Sydney FC
+        { team: mockTeams[31], points: 28, won: 8, draw: 4, lost: 6, goalsFor: 25, goalsAgainst: 22 }, // Adelaide United
+      ];
+    
+    case 5021: // Liga MX Femenil 🇲🇽
+      return [
+        { team: mockTeams[32], points: 45, won: 14, draw: 3, lost: 1, goalsFor: 42, goalsAgainst: 10 }, // Monterrey
+        { team: mockTeams[33], points: 38, won: 12, draw: 2, lost: 4, goalsFor: 35, goalsAgainst: 15 }, // América
+        { team: mockTeams[34], points: 32, won: 10, draw: 2, lost: 6, goalsFor: 28, goalsAgainst: 20 }, // Chivas
+      ];
+    
+    case 5022: // Damallsvenskan 🇸🇪
+      return [
+        { team: mockTeams[35], points: 48, won: 15, draw: 3, lost: 0, goalsFor: 45, goalsAgainst: 8 }, // Rosengård
+        { team: mockTeams[36], points: 41, won: 13, draw: 2, lost: 3, goalsFor: 38, goalsAgainst: 12 }, // Häcken
+        { team: mockTeams[37], points: 35, won: 11, draw: 2, lost: 5, goalsFor: 32, goalsAgainst: 18 }, // LSK Kvinner
+      ];
+    
+    case 5023: // Toppserien 🇳🇴
+      return [
+        { team: mockTeams[37], points: 44, won: 14, draw: 2, lost: 2, goalsFor: 42, goalsAgainst: 10 }, // LSK Kvinner
+        { team: mockTeams[38], points: 38, won: 12, draw: 2, lost: 4, goalsFor: 35, goalsAgainst: 15 }, // Rosenborg
+        { team: mockTeams[39], points: 32, won: 10, draw: 2, lost: 6, goalsFor: 28, goalsAgainst: 20 }, // Corinthians
+      ];
+    
+    case 5024: // Campeonato Brasileiro de Futebol Feminino 🇧🇷
+      return [
+        { team: mockTeams[39], points: 46, won: 14, draw: 4, lost: 0, goalsFor: 48, goalsAgainst: 10 }, // Corinthians
+        { team: mockTeams[40], points: 41, won: 13, draw: 2, lost: 3, goalsFor: 41, goalsAgainst: 16 }, // Palmeiras
+        { team: mockTeams[41], points: 35, won: 11, draw: 2, lost: 5, goalsFor: 32, goalsAgainst: 18 }, // Santos
+      ];
+    
+    case 5025: // Chinese Women's Super League 🇨🇳
+      return [
+        { team: mockTeams[48], points: 42, won: 13, draw: 3, lost: 2, goalsFor: 38, goalsAgainst: 12 }, // Shanghai Shengli
+        { team: mockTeams[49], points: 35, won: 11, draw: 2, lost: 5, goalsFor: 32, goalsAgainst: 18 }, // Jiangsu Suning
+        { team: mockTeams[48], points: 28, won: 8, draw: 4, lost: 6, goalsFor: 25, goalsAgainst: 22 }, // Shanghai Shengli (duplicate for now)
+      ];
+    
+    case 5027: // Concacaf W Champions Cup 🏆
+      return [
+        { team: mockTeams[1], points: 45, won: 14, draw: 3, lost: 1, goalsFor: 42, goalsAgainst: 10 }, // Orlando Pride
+        { team: mockTeams[2], points: 38, won: 12, draw: 2, lost: 4, goalsFor: 35, goalsAgainst: 15 }, // Portland Thorns
+        { team: mockTeams[32], points: 32, won: 10, draw: 2, lost: 6, goalsFor: 28, goalsAgainst: 20 }, // Monterrey
       ];
     
     default:
@@ -211,3 +267,9 @@ export async function GET(
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 600; // Revalidate every 10 minutes for standings
+
+
+
+
+
+
