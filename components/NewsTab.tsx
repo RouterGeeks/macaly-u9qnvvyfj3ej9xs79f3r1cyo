@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -10,6 +11,53 @@ import { Clock, User, Share2, Copy, Instagram, Facebook, Mail, Check, ExternalLi
 
 // Blog posts sorted by newest first
 const blogPosts = [
+  {
+    id: 2,
+    title: "Introducing WoSoLive: Your New Home for Women's Soccer Scores and Competitions",
+    excerpt: "Women's soccer is exploding in popularity around the world — from the sold-out stadiums of the NWSL and WSL to the magic of the Women's World Cup. Fans want more ways to follow their favorite clubs, leagues, and national teams in one place. That's where WoSoLive comes in.",
+    author: "WoSoLive Editorial",
+    publishedAt: "2024-09-07T21:55:00Z",
+    readTime: "4 min read",
+    category: "Feature",
+    image: "https://assets.macaly-user-data.dev/lqya212xf2v8ds14rlaczojb/u9qnvvyfj3ej9xs79f3r1cyo/hUQfocJKZvW2zVrFB-Jh8/tmp34bshfi5.jpg",
+    tags: ["WoSoLive", "Introduction", "Women's Soccer", "Platform", "Community", "Instagram"],
+    fullContent: `Women's soccer is exploding in popularity around the world — from the sold-out stadiums of the NWSL and WSL to the magic of the Women's World Cup. Fans want more ways to follow their favorite clubs, leagues, and national teams in one place. That's where WoSoLive comes in.
+
+🌍 What is WoSoLive?
+
+WoSoLive is a brand-new website dedicated to women's soccer scores, fixtures, and standings across the globe. Instead of digging through multiple sites or apps that mix men's and women's football together, WoSoLive puts the women's game front and center.
+
+Here's what you'll find:
+• 📅 Live Fixtures & Results: Stay up to date with the NWSL, WSL, Liga F, Frauen-Bundesliga, and more.
+• 🌎 International Competitions: Follow the FIFA Women's World Cup, UEFA Women's Champions League, Copa América Femenina, and beyond.
+• 🔍 Smart Filters: Browse by region (North America, Europe, South America, etc.) or by competition type (league, cup, invitational).
+• ⭐ Focus on WoSo Only: No distractions — just women's soccer, all in one place.
+
+📱 WoSoLive on Instagram
+
+We're also building a community on Instagram! Follow @WoSoLive for:
+• Matchday graphics
+• Standout performances
+• Tournament highlights
+• Kit drops and behind-the-scenes moments
+
+The website brings you the data, while Instagram brings you the story.
+
+🚀 Why WoSoLive?
+
+Because the women's game deserves a platform designed for it — with the respect, coverage, and detail fans are asking for. Whether you're following the NWSL playoffs, a Champions League night in Europe, or discovering new leagues like USL Super League or Liga MX Femenil, WoSoLive is here to make it easy.
+
+🌟 What Makes Us Different
+
+• Real-Time Updates: Live scores and standings that refresh every 60 seconds
+• Comprehensive Coverage: From top-tier leagues like NWSL and WSL to emerging competitions worldwide
+• Women's Soccer First: Built specifically for the women's game, not as an afterthought
+• Community Focus: Connect with fellow fans through our growing Instagram community
+
+👉 Ready to explore? You're already here at WoSoLive.com — check out today's fixtures and standings. And don't forget to follow us on Instagram @WoSoLive to keep the conversation going.
+
+Welcome to the future of women's soccer coverage. Welcome to WoSoLive.`
+  },
   {
     id: 1,
     title: "NWSL Rivalry Week: Cascadia Cup? Thorns Take It. Courage? Fumble the PR Bag. Cantore? Makes History.",
@@ -159,6 +207,8 @@ export default function NewsTab() {
         title="WoSo News" 
         subtitle="Latest stories, analysis, and insights from women's soccer"
         showViewAll={false}
+        titleClassName="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight"
+        subtitleClassName="text-gray-700 text-sm sm:text-base mt-1 leading-snug"
       />
 
       {/* Articles List */}
@@ -284,3 +334,4 @@ export default function NewsTab() {
     </div>
   );
 }
+

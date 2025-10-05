@@ -1,3 +1,8 @@
+
+
+
+
+
 // Sports Data API Integration using TheSportsDB.com Premium
 // 🚀 PREMIUM ACCESS with real-time live scores!
 
@@ -6,12 +11,68 @@ const BASE_URL_V2 = 'https://www.thesportsdb.com/api/v2/json';
 
 // Major Women's Soccer League IDs
 const WOMENS_LEAGUES = {
-  NWSL: 4521,           // American NWSL (excellent coverage!)
-  WSL: 4328,            // FA Women's Super League (England) 
-  FRAUEN_BUNDESLIGA: 4479, // German Women's Bundesliga
-  D1_ARKEMA: 5010,      // French D1 Arkema (if available)
-  SERIE_A_FEM: 5011,    // Italian Serie A Femminile (if available)
-  NSL: 5012,            // Northern Super League (Canada) - TBD ID
+  // North America
+  NWSL: 4521,           // National Women's Soccer League (USA)
+  USL_SUPER_LEAGUE: 5498, // USL Super League (USA) - Confirmed ID
+  LIGA_MX_FEMENIL: 5206, // Liga MX Femenil (Mexico)
+  NSL: 5602,            // Northern Super League (Canada) - Corrected ID
+  LEAGUE1_CANADA: 5221, // League1 Canada Women - ID to be confirmed
+  TST_WOMEN: 5222,      // TST Women - ID to be confirmed
+  
+  // Europe
+  WSL: 4849,            // FA Women's Super League (England)
+  FRAUEN_BUNDESLIGA: 5204, // Frauen-Bundesliga (Germany)
+  D1_ARKEMA: 5010,      // Division 1 Féminine (France)
+  SERIE_A_FEM: 5205,    // Serie A Women (Italy)
+  LIGA_F: 5013,         // Liga F (Spain)
+  EREDIVISIE_WOMEN: 5207, // Eredivisie Women (Netherlands)
+  SWPL: 5223,           // Scottish Women's Premier League - ID to be confirmed
+  DAMALLSVENSKAN: 5014, // Damallsvenskan (Sweden)
+  TOPPSERIEN: 5015,     // Toppserien Women (Norway)
+  NIFL_WOMEN: 5224,     // NIFL Women's Premiership (Northern Ireland) - ID to be confirmed
+  
+  // Asia & Oceania
+  WE_LEAGUE: 5016,      // WE League (Japan)
+  WK_LEAGUE: 5225,      // WK League (South Korea) - ID to be confirmed
+  A_LEAGUE_WOMEN: 4805, // A-League Women (Australia)
+  INDIAN_WOMEN: 5226,   // Indian Women's League - ID to be confirmed
+  
+  // South America
+  BRASILEIRAO: 5201,    // Brasileirão Feminino A1 (Brazil)
+  PRIMERA_ARG_WOMEN: 5227, // Primera División A Women (Argentina) - ID to be confirmed
+  
+  // Africa
+  SAFA_WOMEN: 5228,     // SAFA Women's League/Hollywoodbets Super League (South Africa) - ID to be confirmed
+  
+  // International Club Competitions
+  UEFA_WOMENS_CHAMPIONS_LEAGUE: 5208, // UEFA Women's Champions League
+  COPA_LIBERTADORES_FEM: 5213,     // Copa Libertadores Femenina
+  CAF_WOMENS_CHAMPIONS_LEAGUE: 5210,  // CAF Women's Champions League
+  AFC_WOMENS_CLUB: 5229,  // AFC Women's Club Championship - ID to be confirmed
+  
+  // International Tournaments
+  FIFA_WOMENS_WORLD_CUP: 5230, // FIFA Women's World Cup - ID to be confirmed
+  OLYMPIC_WOMEN: 5231,  // Olympic Games - Women - ID to be confirmed
+  UEFA_WOMENS_EURO: 5232, // UEFA Women's Championship - ID to be confirmed
+  AFC_WOMENS_ASIAN_CUP: 5233, // AFC Women's Asian Cup - ID to be confirmed
+  COPA_AMERICA_FEM: 5234, // Copa América Femenina - ID to be confirmed
+  CONCACAF_W_GOLD_CUP: 5235, // CONCACAF W Gold Cup - ID to be confirmed
+  CAF_WOMENS_AFCON: 5236, // CAF Women's Africa Cup of Nations - ID to be confirmed
+  
+  // Invitational Tournaments
+  SHEBELIEVES_CUP: 5237, // SheBelieves Cup - ID to be confirmed
+  ARNOLD_CLARK_CUP: 5238, // Arnold Clark Cup - ID to be confirmed
+  TOURNOI_DE_FRANCE: 5239, // Tournoi de France - ID to be confirmed
+  PINATAR_CUP: 5240,    // Pinatar Cup - ID to be confirmed
+  ALGARVE_CUP: 5241,    // Algarve Cup - ID to be confirmed
+  WOMENS_CUP: 5242,     // The Women's Cup - ID to be confirmed
+  WORLD_SEVENS_WOMEN: 5243, // World Sevens Women - ID to be confirmed
+  
+  // Legacy aliases for backward compatibility
+  FA_WSL: 4849,         // FA Women's Super League (same as WSL)
+  ENGLISH_WSL: 4849,    // English Women's Super League (same as WSL)
+  CHINESE_WSL: 5017,    // Chinese Women's Super League - ID to be confirmed
+  CONCACAF_W_CHAMPIONS_CUP: 5018, // Concacaf W Champions Cup - ID to be confirmed
 };
 
 // Helper function to check if premium API is configured
@@ -232,26 +293,87 @@ class SportsDataService {
     }
   }
 
-  // Filter to ensure only women's soccer matches
+  // Filter to ensure only women's soccer matches from approved leagues
   private isWomensSoccerMatch(match: any): boolean {
     const leagueName = (match.strLeague || '').toLowerCase();
     const sport = (match.strSport || '').toLowerCase();
     
-    return (
-      (sport.includes('soccer') || sport.includes('football')) &&
-      (leagueName.includes('nwsl') ||
-       leagueName.includes('women') ||
-       leagueName.includes('female') ||
-       leagueName.includes('wsl') ||
-       leagueName.includes('super league') ||
-       leagueName.includes('northern super league') ||
-       leagueName.includes('nsl') ||
-       leagueName.includes('frauen') ||
-       leagueName.includes('féminine') ||
-       leagueName.includes('femminile') ||
-       leagueName.includes('uwcl') ||
-       leagueName.includes('champions league'))
+    console.log('🔍 Checking match:', { league: match.strLeague, sport: match.strSport });
+    
+    // First, exclude known men's leagues - expanded patterns
+    const menLeaguePatterns = [
+      /costa\s*rica.*liga/i,
+      /liga.*costa\s*rica/i,
+      /liga\s*fpd/i,
+      /fpd/i,
+      /swiss\s*super\s*league/i,
+      /super\s*league.*swiss/i,
+      /switzerland.*super/i,
+      /uzbekistan\s*super\s*league/i,
+      /super\s*league.*uzbekistan/i,
+      /netherlands\s*derde\s*divisie/i,
+      /derde\s*divisie.*netherlands/i,
+      /derde\s*divisie\s*sunday/i,
+      /sunday.*derde\s*divisie/i,
+      // Add more comprehensive men's league patterns
+      /^swiss\s*super/i,
+      /^super\s*league$/i,
+      /uzbekistan.*league/i,
+      /netherlands.*divisie/i,
+      /divisie.*netherlands/i
+    ];
+    
+    if (menLeaguePatterns.some(pattern => pattern.test(leagueName))) {
+      console.log('🚫 Excluding men\'s league:', match.strLeague);
+      return false;
+    }
+    
+    // Only allow matches from the approved women's leagues list
+    const approvedLeagues = [
+      "national women's soccer league",
+      "usl super league women", 
+      "liga mx femenil",
+      "northern super league",
+      "fa women's super league",
+      "frauen-bundesliga",
+      // Accented/non-accented variants
+      "division 1 feminine",
+      "division 1 féminine",
+      "serie a women",
+      "liga f",
+      "primera division femenina",
+      "primera división femenina",
+      "eredivisie women",
+      "scottish women's premier league",
+      "damallsvenskan",
+      "toppserien women",
+      "nifl women's premiership",
+      "we league",
+      "wk league",
+      "a-league women",
+      "indian women's league",
+      // Accented/non-accented variants
+      "brasileirao feminino a1",
+      "brasileirão feminino a1",
+      "primera division a women (argentina)",
+      "hollywoodbets super league",
+      "caf women's champions league"
+    ];
+    
+    const isApprovedLeague = approvedLeagues.some(approved => 
+      leagueName.includes(approved.toLowerCase()) || 
+      approved.toLowerCase().includes(leagueName)
     );
+    
+    if (!isApprovedLeague) {
+      console.log('🚫 Excluding non-approved league:', match.strLeague);
+      return false;
+    }
+    
+    // Must be soccer/football
+    const isSoccer = sport.includes('soccer') || sport.includes('football');
+    
+    return isSoccer;
   }
 
   // Transform V2 API match data to our LiveMatch interface
@@ -318,25 +440,42 @@ class SportsDataService {
     const statusLower = status?.toLowerCase() || '';
     const progressLower = progress?.toLowerCase() || '';
     
-    // Check if match is live based on progress indicators
-    if (progressLower.includes("'") || progressLower.includes('min') || 
-        progressLower.includes('1h') || progressLower.includes('2h') ||
-        statusLower.includes('live') || statusLower.includes('play')) {
-      return 'LIVE';
+    // Prioritize finished/cancelled/postponed before any live heuristics
+    if (
+      statusLower.includes('finished') || statusLower.includes('final') || statusLower.includes('full time') ||
+      statusLower.includes('ft') || progressLower.includes('ft') ||
+      statusLower.includes('aet') || statusLower.includes('after extra time') ||
+      statusLower.includes('pen') || statusLower.includes('penalties')
+    ) {
+      return 'FINISHED';
     }
-    
-    if (statusLower.includes('finished') || statusLower.includes('final') || statusLower.includes('ft')) return 'FINISHED';
-    if (statusLower.includes('scheduled') || statusLower.includes('fixture')) return 'SCHEDULED';
     if (statusLower.includes('postponed')) return 'POSTPONED';
     if (statusLower.includes('cancelled')) return 'CANCELLED';
-    if (statusLower.includes('halftime') || progressLower.includes('ht')) return 'PAUSED';
+    if (statusLower.includes('halftime') || statusLower.includes('ht') || progressLower.includes('ht') || statusLower.includes('half time')) return 'PAUSED';
+    
+    // Enhanced live detection including WSL-specific statuses
+    if (
+      statusLower.includes('live') || statusLower.includes('in play') || statusLower.includes('playing') ||
+      statusLower === '1h' || statusLower === '2h' || // First/Second half indicators
+      statusLower.includes('first half') || statusLower.includes('second half') ||
+      progressLower.includes("'") || progressLower.includes('min') ||
+      progressLower.includes('1h') || progressLower.includes('2h')
+    ) {
+      return 'LIVE';
+    }
     
     return 'SCHEDULED';
   }
 
   // Transform TheSportsDB event data to our format
-  private transformEventToLiveMatch(event: any, leagueInfo?: any): LiveMatch {
+  private transformEventToLiveMatch(event: any, leagueInfo?: any): LiveMatch | null {
     console.log('🔄 Transforming V1 event:', event);
+    
+    // Filter out non-women's soccer matches - CRITICAL FIX
+    if (!this.isWomensSoccerMatch(event)) {
+      console.log('⚠️ Skipping non-women\'s soccer match (V1):', event.strLeague);
+      return null;
+    }
     
     const status = this.mapEventStatus(event);
     const leagueId = event.idLeague ? parseInt(event.idLeague) : WOMENS_LEAGUES.NWSL;
@@ -381,15 +520,102 @@ class SportsDataService {
   private cleanLeagueName(leagueName: string): string {
     if (!leagueName) return 'Unknown League';
     
-    // Clean up common league name issues
+    // Clean up common league name issues and standardize display names
     const cleaned = leagueName
+      // North American leagues
       .replace('American NWSL', 'NWSL')
-      .replace('FA Women\'s Super League', 'WSL')
+      .replace('National Women\'s Soccer League', 'NWSL')
+      .replace('USL Super League Women', 'USL Super League')
+      .replace('Liga MX Femenil', 'Liga MX Femenil')
       .replace('Northern Super League', 'NSL')
+      .replace('League1 Canada Women', 'League1 Canada')
+      
+      // European leagues
+      .replace('FA Women\'s Super League', 'WSL')
+      .replace('Barclays WSL', 'WSL')
+      .replace('English Women\'s Super League', 'WSL')
+      .replace('Google Pixel Frauen-Bundesliga', 'Frauen-Bundesliga')
       .replace('German Women\'s Bundesliga', 'Frauen-Bundesliga')
+      .replace('D1 Arkema', 'Division 1 Féminine')
+      .replace('Arkema Première Ligue', 'Division 1 Féminine')
+      .replace('Serie A Femminile eBay', 'Serie A Women')
+      .replace('Primera División (Liga F)', 'Liga F')
+      .replace('Primera División Femenina', 'Liga F')
+      .replace('Eredivisie Vrouwen', 'Eredivisie Women')
+      .replace('Scottish Women\'s Premier League', 'SWPL')
+      .replace('Sports Direct Women\'s Premiership', 'NIFL Women\'s Premiership')
+      
+      // Asian & Oceanian leagues
+      .replace('WE League', 'WE League')
+      .replace('WK League', 'WK League')
+      .replace('A-League Women', 'A-League Women')
+      .replace('Indian Women\'s League', 'Indian Women\'s League')
+      
+      // South American leagues
+      .replace('Campeonato Brasileiro Feminino Série A1', 'Brasileirão Feminino A1')
+      .replace('Primera División A Femenina', 'Primera División A Women')
+      
+      // African leagues
+      .replace('SAFA Women\'s League', 'SAFA Women\'s League')
+      .replace('Hollywoodbets Super League', 'Hollywoodbets Super League')
+      
+      // International competitions
+      .replace('UEFA Women\'s Champions League', 'UWCL')
+      .replace('CONMEBOL Copa Libertadores Femenina', 'Copa Libertadores Femenina')
+      .replace('CAF Women\'s Champions League', 'CAF Women\'s Champions League')
+      .replace('AFC Women\'s Club Championship', 'AFC Women\'s Club Championship')
+      .replace('FIFA Women\'s World Cup', 'FIFA Women\'s World Cup')
+      .replace('Olympic Games – Women', 'Olympic Women\'s Football')
+      .replace('UEFA Women\'s Championship', 'UEFA Women\'s Euro')
+      .replace('AFC Women\'s Asian Cup', 'AFC Women\'s Asian Cup')
+      .replace('Copa América Femenina', 'Copa América Femenina')
+      .replace('CONCACAF W Gold Cup', 'CONCACAF W Gold Cup')
+      .replace('CAF Women\'s Africa Cup of Nations', 'CAF Women\'s AFCON')
+      
+      // Invitational tournaments
+      .replace('SheBelieves Cup', 'SheBelieves Cup')
+      .replace('Arnold Clark Cup', 'Arnold Clark Cup')
+      .replace('Tournoi de France', 'Tournoi de France')
+      .replace('Pinatar Cup', 'Pinatar Cup')
+      .replace('Algarve Cup', 'Algarve Cup')
+      .replace('The Women\'s Cup', 'The Women\'s Cup')
+      .replace('World Sevens Women', 'World Sevens Women')
+      
+      // Friendlies
+      .replace('Women\'s International Friendlies', 'International Friendlies')
+      
       .trim();
     
     return cleaned;
+  }
+
+  // Broad name check for women-specific competitions (covers leagues without explicit "Women" in title)
+  private isWomensLeagueName(name: string): boolean {
+    const n = name.toLowerCase();
+    return (
+      // Generic women markers
+      n.includes("women") || n.includes("women's") || n.includes('female') || n.includes('womens') ||
+      // Common international comps
+      n.includes('uwcl') || n.includes("women's champions league") || n.includes('concacaf w') ||
+      // Major domestic leagues (native names)
+      n.includes('damallsvenskan') ||
+      n.includes('toppserien') ||
+      n.includes('liga f') ||
+      n.includes('liga mx femenil') ||
+      n.includes('d1 arkema') ||
+      n.includes('frauen') ||
+      n.includes('femminile') ||
+      n.includes('we league') ||
+      n.includes('a-league women') ||
+      n.includes('brasileiro feminino variants') ||
+      n.includes('chinese women') ||
+      n.includes('nwsl') ||
+      n.includes('wsl') ||
+      n.includes('womens super league') ||
+      n.includes('women\'s super league') ||
+      n.includes('fa women') ||
+      n.includes('northern super league')
+    );
   }
 
   // Create short team name (3 characters)
@@ -446,28 +672,14 @@ class SportsDataService {
     const status = event.strStatus?.toLowerCase() || '';
     const progress = event.strProgress?.toLowerCase() || '';
     
-    console.log('🔄 Status mapping:', { status, progress, rawStatus: event.strStatus, rawProgress: event.strProgress });
+    console.log('🌀 Status mapping (event):', { status, progress, rawStatus: event.strStatus, rawProgress: event.strProgress });
     
-    // Check if match is live/in progress - FIRST PRIORITY
-    if (status.includes('1h') || status.includes('2h') || 
-        status.includes('first half') || status.includes('second half') ||
-        progress.includes("'") || progress.includes('min') || 
-        progress.includes('1h') || progress.includes('2h') ||
-        status.includes('live') || status.includes('in play') ||
-        status.includes('playing')) {
-      console.log('🔴 DETECTED LIVE MATCH!');
-      return 'LIVE';
-    }
-    
-    if (status.includes('halftime') || status.includes('ht') || progress.includes('ht')) {
-      console.log('⏸️ DETECTED HALFTIME');
-      return 'PAUSED';
-    }
-    
-    // Check various status indicators for finished matches
-    if (status.includes('match finished') || status.includes('ft') || status.includes('finished') ||
-        status.includes('full time') || status.includes('final') ||
-        (event.intHomeScore !== null && event.intAwayScore !== null && status !== 'not started')) {
+    // Finished first — avoid misclassifying FT events as live due to lingering minutes text
+    if (
+      status.includes('match finished') || status.includes('finished') || status.includes('final') ||
+      status.includes('full time') || status.includes('ft') || progress.includes('ft') ||
+      status.includes('aet') || status.includes('after extra time') || status.includes('pen') || status.includes('penalties')
+    ) {
       console.log('✅ DETECTED FINISHED MATCH');
       return 'FINISHED';
     }
@@ -480,8 +692,22 @@ class SportsDataService {
       console.log('❌ DETECTED CANCELLED');
       return 'CANCELLED';
     }
+    if (status.includes('halftime') || status.includes('ht') || progress.includes('ht') || status.includes('half time')) {
+      console.log('⏸️ DETECTED HALFTIME');
+      return 'PAUSED';
+    }
     
-    // Default to scheduled for future matches
+    // Enhanced live detection including WSL-specific statuses
+    if (
+      status.includes('live') || status.includes('in play') || status.includes('playing') ||
+      status === '1h' || status === '2h' || // First/Second half indicators
+      status.includes('first half') || status.includes('second half') ||
+      progress.includes("'") || progress.includes('min') || progress.includes('1h') || progress.includes('2h')
+    ) {
+      console.log('🔴 DETECTED LIVE MATCH!');
+      return 'LIVE';
+    }
+    
     console.log('📅 DETECTED SCHEDULED');
     return 'SCHEDULED';
   }
@@ -503,7 +729,8 @@ class SportsDataService {
       if (recentEvents?.events) {
         const recentMatches = recentEvents.events
           .slice(0, limit)
-          .map((event: any) => this.transformEventToLiveMatch(event));
+          .map((event: any) => this.transformEventToLiveMatch(event))
+          .filter(Boolean); // Filter out null values
         
         console.log(`✅ Found ${recentMatches.length} recent NWSL matches`);
         allMatches.push(...recentMatches);
@@ -542,6 +769,9 @@ class SportsDataService {
                leagueName.includes('women') ||
                leagueName.includes('female') ||
                leagueName.includes('wsl') ||
+               leagueName.includes('womens super league') ||
+               leagueName.includes('women\'s super league') ||
+               leagueName.includes('fa women') ||
                leagueName.includes('super league') ||
                leagueName.includes('northern super league') ||
                leagueName.includes('nsl') ||
@@ -553,6 +783,7 @@ class SportsDataService {
             );
           })
           .map((event: any) => this.transformEventToLiveMatch(event))
+          .filter(Boolean) // Filter out null values
           .slice(0, 10);
         
         console.log(`📊 Found ${todayMatches.length} women's soccer matches today`);
@@ -576,7 +807,8 @@ class SportsDataService {
       } else if (upcomingEvents?.events) {
         const upcomingMatches = upcomingEvents.events
           .slice(0, 5)
-          .map((event: any) => this.transformEventToLiveMatch(event));
+          .map((event: any) => this.transformEventToLiveMatch(event))
+          .filter(Boolean); // Filter out null values
         
         console.log(`📊 Found ${upcomingMatches.length} upcoming NWSL matches`);
         allMatches.push(...upcomingMatches);
@@ -600,13 +832,57 @@ class SportsDataService {
         if (recentEvents?.events) {
           const recentMatches = recentEvents.events
             .slice(0, 3)
-            .map((event: any) => this.transformEventToLiveMatch(event));
+            .map((event: any) => this.transformEventToLiveMatch(event))
+            .filter(Boolean); // Filter out null values
           
           allMatches.push(...recentMatches);
         }
       } catch (error) {
         console.log(`⚠️ League ${leagueId} fetch failed:`, error.message);
       }
+    }
+
+    // Also try to get today's WSL matches specifically
+    try {
+      console.log('🏴󠁧󠁢󠁥󠁮󠁧󠁿 Fetching today\'s WSL matches specifically...');
+      const wslToday = await this.fetchFromAPI(`/eventsday.php?d=${todayStr}&l=${WOMENS_LEAGUES.WSL}`);
+      
+      if (wslToday?.events) {
+        const wslMatches = wslToday.events
+          .map((event: any) => this.transformEventToLiveMatch(event))
+          .filter(Boolean) // Filter out null values
+          .slice(0, 5);
+        
+        console.log(`🏴󠁧󠁢󠁥󠁮󠁧󠁿 Found ${wslMatches.length} WSL matches today`);
+        allMatches.push(...wslMatches);
+      }
+    } catch (error) {
+      console.log('⚠️ WSL today fetch failed:', error.message);
+    }
+
+    // Check upcoming WSL matches for live games (since live API doesn't include women's matches)
+    try {
+      console.log('🏴󠁧󠁢󠁥󠁮󠁧󠁿 Checking upcoming WSL matches for live games...');
+      const wslUpcoming = await this.fetchFromAPI(`/eventsnextleague.php?id=${WOMENS_LEAGUES.WSL}`);
+      
+      if (wslUpcoming?.events) {
+        const liveWSLMatches = wslUpcoming.events
+          .filter((event: any) => {
+            const status = event.strStatus?.toLowerCase() || '';
+            // Check for live indicators in upcoming matches
+            return status === '1h' || status === '2h' || status.includes('live') || 
+                   status.includes('in play') || status.includes('first half') || 
+                   status.includes('second half');
+          })
+          .map((event: any) => this.transformEventToLiveMatch(event))
+          .filter(Boolean) // Filter out null values
+          .slice(0, 5);
+        
+        console.log(`🔴 Found ${liveWSLMatches.length} LIVE WSL matches from upcoming API`);
+        allMatches.push(...liveWSLMatches);
+      }
+    } catch (error) {
+      console.log('⚠️ WSL upcoming fetch failed:', error.message);
     }
 
     // Remove duplicates and sort
@@ -636,47 +912,184 @@ class SportsDataService {
   // Get fixtures for specific date range
   async getFixtures(dateFrom?: string, dateTo?: string): Promise<LiveMatch[]> {
     try {
-      console.log('📅 Fetching fixtures...');
+      console.log('📅 Fetching fixtures...', { dateFrom, dateTo });
       
       const allMatches: LiveMatch[] = [];
-      
-      // Get next NWSL matches
-      const upcomingEvents = await this.fetchFromAPI(`/eventsnextleague.php?id=${WOMENS_LEAGUES.NWSL}`);
-      
-      if (!upcomingEvents) {
-        console.log('⚠️ No response from fixtures API');
-        return [];
-      }
-      
-      if (upcomingEvents?.events) {
-        const fixtures = upcomingEvents.events
-          .map((event: any) => this.transformEventToLiveMatch(event))
-          .slice(0, 15); // Limit to 15 fixtures
-        
-        allMatches.push(...fixtures);
+
+      // Build which directions to fetch based on requested date range
+      const todayStr = new Date().toISOString().split('T')[0];
+      const needNext = !dateTo || (dateTo >= todayStr);
+      const needPast = !dateFrom || (dateFrom <= todayStr);
+
+      // If a specific date range is requested, fetch by day to improve accuracy and performance
+      if (dateFrom || dateTo) {
+        const start = new Date((dateFrom || new Date().toISOString().split('T')[0]) + 'T00:00:00Z');
+        const end = new Date((dateTo || dateFrom || new Date().toISOString().split('T')[0]) + 'T00:00:00Z');
+        const days: string[] = [];
+        for (let d = new Date(start); d.getTime() <= end.getTime() && days.length < 14; d.setUTCDate(d.getUTCDate() + 1)) {
+          days.push(d.toISOString().split('T')[0]);
+        }
+
+        console.log('📅 Fetching by date range (eventsday):', days);
+
+        const dayResults = await Promise.allSettled(
+          days.map((d) => this.fetchFromAPI(`/eventsday.php?d=${d}`))
+        );
+
+        // Allow only approved women's league IDs from user list
+        const allowedLeagueIds = new Set<number>([
+          WOMENS_LEAGUES.NWSL,
+          WOMENS_LEAGUES.USL_SUPER_LEAGUE,
+          WOMENS_LEAGUES.LIGA_MX_FEMENIL,
+          WOMENS_LEAGUES.NSL,
+          WOMENS_LEAGUES.WSL,
+          WOMENS_LEAGUES.FRAUEN_BUNDESLIGA,
+          WOMENS_LEAGUES.D1_ARKEMA,
+          WOMENS_LEAGUES.SERIE_A_FEM,
+          WOMENS_LEAGUES.LIGA_F,
+          WOMENS_LEAGUES.EREDIVISIE_WOMEN,
+          WOMENS_LEAGUES.SWPL,
+          WOMENS_LEAGUES.DAMALLSVENSKAN,
+          WOMENS_LEAGUES.TOPPSERIEN,
+          WOMENS_LEAGUES.NIFL_WOMEN,
+          WOMENS_LEAGUES.WE_LEAGUE,
+          WOMENS_LEAGUES.WK_LEAGUE,
+          WOMENS_LEAGUES.A_LEAGUE_WOMEN,
+          WOMENS_LEAGUES.INDIAN_WOMEN,
+          WOMENS_LEAGUES.BRASILEIRAO,
+          WOMENS_LEAGUES.PRIMERA_ARG_WOMEN,
+          WOMENS_LEAGUES.SAFA_WOMEN,
+          WOMENS_LEAGUES.CAF_WOMENS_CHAMPIONS_LEAGUE
+        ].filter(Boolean) as number[]);
+
+        for (const r of dayResults) {
+          if (r.status === 'fulfilled' && r.value?.events?.length) {
+            const womensSoccerEvents = r.value.events.filter((e: any) => {
+              const sport = (e.strSport || '').toLowerCase();
+              const leagueId = parseInt(e.idLeague || '0');
+              const leagueName = (e.strLeague || '').toLowerCase();
+              const isSoccer = sport.includes('soccer') || sport.includes('football');
+              const isKnownWomenLeague = allowedLeagueIds.has(leagueId);
+              const nameSuggestsWomen = leagueName.includes('women') || leagueName.includes("women's") || leagueName.includes('female') || leagueName.includes('womens') || this.isWomensLeagueName(leagueName);
+              return isSoccer && (isKnownWomenLeague || nameSuggestsWomen);
+            });
+            const transformed = womensSoccerEvents
+              .map((e: any) => this.transformEventToLiveMatch(e))
+              .filter(Boolean);
+            allMatches.push(...(transformed as LiveMatch[]));
+          }
+        }
+
+        const dedupedByDay = this.removeDuplicateMatches(allMatches);
+        dedupedByDay.sort((a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime());
+        console.log(`✅ Fixtures (date range) after filtering: ${dedupedByDay.length}`);
+        return dedupedByDay;
       }
 
-      // Get recent past matches too
-      const pastEvents = await this.fetchFromAPI(`/eventspastleague.php?id=${WOMENS_LEAGUES.NWSL}`);
-      
-      if (!pastEvents) {
-        console.log('⚠️ No response from past matches API');
-      } else if (pastEvents?.events) {
-        const recentResults = pastEvents.events
-          .slice(0, 10)
-          .map((event: any) => this.transformEventToLiveMatch(event));
-        
-        allMatches.push(...recentResults);
+      // Aggregate from multiple major women's leagues
+      const leagues = [
+        WOMENS_LEAGUES.NWSL,
+        WOMENS_LEAGUES.WSL,
+        WOMENS_LEAGUES.FRAUEN_BUNDESLIGA,
+        WOMENS_LEAGUES.D1_ARKEMA,
+        WOMENS_LEAGUES.SERIE_A_FEM,
+        WOMENS_LEAGUES.NSL,
+        WOMENS_LEAGUES.LIGA_F,
+        WOMENS_LEAGUES.LIGA_MX_FEMENIL,
+        WOMENS_LEAGUES.DAMALLSVENSKAN,
+        WOMENS_LEAGUES.TOPPSERIEN,
+        WOMENS_LEAGUES.BRASILEIRAO,
+        WOMENS_LEAGUES.WE_LEAGUE,
+        WOMENS_LEAGUES.A_LEAGUE_WOMEN,
+        WOMENS_LEAGUES.EREDIVISIE_WOMEN,
+        WOMENS_LEAGUES.USL_SUPER_LEAGUE,
+        WOMENS_LEAGUES.CONCACAF_W_CHAMPIONS_CUP,
+      ].filter(Boolean) as number[];
+
+      // Fetch all leagues in parallel with conditional endpoints
+      const fetches = leagues.flatMap((leagueId) => {
+        const tasks: Promise<any>[] = [];
+        if (needNext) {
+          tasks.push(
+            this.fetchFromAPI(`/eventsnextleague.php?id=${leagueId}`)
+              .then((res) => ({ leagueId, type: 'next', events: res?.events || [] }))
+              .catch((e) => ({ leagueId, type: 'next', events: [], error: e?.message || 'err' }))
+          );
+        }
+        if (needPast) {
+          tasks.push(
+            this.fetchFromAPI(`/eventspastleague.php?id=${leagueId}`)
+              .then((res) => ({ leagueId, type: 'past', events: res?.events || [] }))
+              .catch((e) => ({ leagueId, type: 'past', events: [], error: e?.message || 'err' }))
+          );
+        }
+        return tasks;
+      });
+
+      const results = await Promise.allSettled(fetches);
+      for (const r of results) {
+        if (r.status === 'fulfilled' && r.value?.events?.length) {
+          // Pass the leagueId context to ensure proper league assignment
+          const transformed = r.value.events.map((e: any) => {
+            const match = this.transformEventToLiveMatch(e);
+            // Ensure the league ID is preserved from the fetch context
+            if (match && r.value.leagueId) {
+              match.competition.id = r.value.leagueId;
+            }
+            return match;
+          }).filter(Boolean);
+          allMatches.push(...transformed);
+        }
       }
+
+      // Remove duplicates
+      const deduped = this.removeDuplicateMatches(allMatches);
+
+      // Optional date filtering
+      let filtered = deduped;
       
+      // Enforce women's soccer only by known league IDs (more reliable than name contains checks)
+      const allowedLeagueIds = new Set<number>(
+        [
+          WOMENS_LEAGUES.NWSL,
+          WOMENS_LEAGUES.WSL,
+          WOMENS_LEAGUES.FRAUEN_BUNDESLIGA,
+          WOMENS_LEAGUES.D1_ARKEMA,
+          WOMENS_LEAGUES.SERIE_A_FEM,
+          WOMENS_LEAGUES.NSL,
+          WOMENS_LEAGUES.LIGA_F,
+          WOMENS_LEAGUES.LIGA_MX_FEMENIL,
+          WOMENS_LEAGUES.DAMALLSVENSKAN,
+          WOMENS_LEAGUES.TOPPSERIEN,
+          WOMENS_LEAGUES.BRASILEIRAO,
+          WOMENS_LEAGUES.WE_LEAGUE,
+          WOMENS_LEAGUES.A_LEAGUE_WOMEN,
+          WOMENS_LEAGUES.EREDIVISIE_WOMEN,
+          WOMENS_LEAGUES.USL_SUPER_LEAGUE,
+          WOMENS_LEAGUES.CONCACAF_W_CHAMPIONS_CUP,
+        ].filter(Boolean) as number[]
+      );
+
+      filtered = deduped.filter((m) => allowedLeagueIds.has(m.competition?.id));
+      
+      // Apply optional date range filtering
+      if (dateFrom || dateTo) {
+        filtered = filtered.filter((m) => {
+          const d = m.utcDate.split('T')[0];
+          if (dateFrom && d < dateFrom) return false;
+          if (dateTo && d > dateTo) return false;
+          return true;
+        });
+      }
+
       // Sort by date (most recent first)
-      allMatches.sort((a, b) => new Date(b.utcDate).getTime() - new Date(a.utcDate).getTime());
+      filtered.sort((a, b) => new Date(b.utcDate).getTime() - new Date(a.utcDate).getTime());
       
-      console.log(`✅ Found ${allMatches.length} fixtures and results`);
-      return allMatches;
+      console.log(`✅ Fixtures total after filtering: ${filtered.length}`);
+      return filtered;
 
     } catch (error) {
-      console.error('❌ Error fetching fixtures:', error);
+      console.error('❌ Error fetching fixtures:', (error as any).message);
       return [];
     }
   }
@@ -685,41 +1098,90 @@ class SportsDataService {
   async getStandings(competitionId: number): Promise<Standing[]> {
     try {
       console.log(`📊 Fetching standings for league ID: ${competitionId}`);
-      
-      const currentSeason = new Date().getFullYear();
-      const response = await this.fetchFromAPI(`/lookuptable.php?l=${competitionId}&s=${currentSeason}`);
-      
-      if (!response) {
-        console.log('⚠️ No response from standings API, returning empty standings');
-        return [];
-      }
-      
-      if (response?.table) {
-        const standings: Standing[] = response.table.map((team: any) => ({
-          position: parseInt(team.intRank) || 0,
-          team: {
-            id: parseInt(team.idTeam) || 0,
-            name: team.strTeam || 'Unknown Team',
-            shortName: this.createShortName(team.strTeam || 'UNK'),
-            crest: team.strTeamBadge || '/images/team-placeholder.png'
-          },
-          playedGames: parseInt(team.intPlayed) || 0,
-          won: parseInt(team.intWin) || 0,
-          draw: parseInt(team.intDraw) || 0,
-          lost: parseInt(team.intLoss) || 0,
-          points: parseInt(team.intPoints) || 0,
-          goalsFor: parseInt(team.intGoalsFor) || 0,
-          goalsAgainst: parseInt(team.intGoalsAgainst) || 0,
-          goalDifference: parseInt(team.intGoalDifference) || 0
-        }));
-        
-        console.log(`✅ Found ${standings.length} teams in standings`);
-        return standings;
+
+      const year = new Date().getFullYear();
+      const month = new Date().getMonth() + 1; // 1-12
+
+      // 1) Ask API for available seasons and pick the most relevant
+      let seasonCandidates: string[] = [];
+      try {
+        const seasonsResp = await this.fetchFromAPI(`/search_all_seasons.php?id=${competitionId}`);
+        const apiSeasons: string[] = Array.isArray(seasonsResp?.seasons)
+          ? seasonsResp.seasons.map((s: any) => s?.strSeason).filter(Boolean)
+          : [];
+        console.log('📚 Seasons from API:', apiSeasons);
+        seasonCandidates.push(...apiSeasons);
+      } catch (e) {
+        console.log('ℹ️ Could not load seasons list, will try common formats.');
       }
 
+      // 2) Add common season formats (covers split-year and single-year)
+      const commonFormats = [
+        `${year}`,
+        `${year - 1}`,
+        `${year - 1}-${year}`,
+        `${year}-${year + 1}`,
+        // If we are early season (Aug-Nov), last season might still be active in DB
+        ...(month >= 8 && month <= 11 ? [`${year - 1}-${year}`] : []),
+      ];
+      seasonCandidates.push(...commonFormats);
+
+      // Dedupe while preserving order
+      seasonCandidates = Array.from(new Set(seasonCandidates.filter(Boolean)));
+
+      // Helper: score seasons to try most likely first
+      const scoreSeason = (s: string) => {
+        // Examples: '2025', '2024-2025', '2025-2026'
+        const m = s.match(/^(\d{4})(?:-(\d{4}))?$/);
+        if (!m) return 0;
+        const start = parseInt(m[1]);
+        const end = m[2] ? parseInt(m[2]) : start;
+        // Prefer seasons that include current year, then most recent
+        let score = 0;
+        if (start === year || end === year) score += 100;
+        score += (start * 2 + end); // newer seasons higher
+        return score;
+      };
+
+      seasonCandidates.sort((a, b) => scoreSeason(b) - scoreSeason(a));
+      console.log('🧭 Season try order:', seasonCandidates);
+
+      // 3) Try seasons in order until we get a table
+      for (const season of seasonCandidates) {
+        console.log(`🗓️ Trying standings season: ${season}`);
+        const response = await this.fetchFromAPI(`/lookuptable.php?l=${competitionId}&s=${season}`);
+        if (!response) {
+          console.log('⚠️ No response from standings API for season', season);
+          continue;
+        }
+        if (response?.table && Array.isArray(response.table) && response.table.length > 0) {
+          const standings: Standing[] = response.table.map((team: any) => ({
+            position: parseInt(team.intRank) || 0,
+            team: {
+              id: parseInt(team.idTeam) || 0,
+              name: team.strTeam || 'Unknown Team',
+              shortName: this.createShortName(team.strTeam || 'UNK'),
+              crest: team.strTeamBadge || '/images/team-placeholder.png'
+            },
+            playedGames: parseInt(team.intPlayed) || 0,
+            won: parseInt(team.intWin) || 0,
+            draw: parseInt(team.intDraw) || 0,
+            lost: parseInt(team.intLoss) || 0,
+            points: parseInt(team.intPoints) || 0,
+            goalsFor: parseInt(team.intGoalsFor) || 0,
+            goalsAgainst: parseInt(team.intGoalsAgainst) || 0,
+            goalDifference: parseInt(team.intGoalDifference) || 0
+          }));
+          console.log(`✅ Found ${standings.length} teams in standings for season ${season}`);
+          return standings;
+        }
+        console.log(`ℹ️ No standings table for season ${season}`);
+      }
+
+      console.log('⚠️ No standings found for any tried season, returning empty array');
       return [];
     } catch (error) {
-      console.error('❌ Error fetching standings:', error);
+      console.error('❌ Error fetching standings:', (error as any)?.message || error);
       return [];
     }
   }
@@ -737,3 +1199,58 @@ export { isAPIKeyConfigured };
 
 // Export league constants for use in components
 export { WOMENS_LEAGUES };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

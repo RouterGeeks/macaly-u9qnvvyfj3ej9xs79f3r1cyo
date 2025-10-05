@@ -149,3 +149,26 @@ div[style*="position: fixed"][style*="bottom: "][style*="left: "] {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Hide scrollbars for horizontal scrolling filter chips */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar { 
+  display: none;  /* Safari and Chrome */
+}
+
+/* Smooth scrolling for filter chips */
+.scrollbar-hide {
+  scroll-behavior: smooth;
+}
+
+/* Enhanced sticky navigation styling */
+.sticky-nav-blur {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.75);
+  border-bottom: 1px solid rgba(229, 231, 235, 0.4);
+}
