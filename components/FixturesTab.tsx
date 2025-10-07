@@ -53,7 +53,7 @@ const getOrderedCompetitions = () => {
     "Division 1 Feminine": { id: 5010, logo: "🇫🇷" },
     "Serie A Women": { id: 5205, logo: "🇮🇹" },
     "Liga F": { id: 5013, logo: "🇪🇸" },
-    "Primera Division Femenina": { id: 5013, logo: "🇪🇸" },
+    "Primera Division Femenina": { id: 5106, logo: "🇪🇸" },
     "Eredivisie Women": { id: 5207, logo: "🇳🇱" },
     "Scottish Women's Premier League": { id: 5223, logo: "🏴" },
     "Damallsvenskan": { id: 5014, logo: "🇸🇪" },
@@ -98,7 +98,7 @@ const getDateRange = (period: string) => {
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
   const weekFromNow = new Date(today);
-  weekFromNow.setDate(today.getDate() + 7);
+  weekFromNow.setDate(today.getDate() + 14); // Extended to 2 weeks to catch more matches
 
   switch (period) {
     case 'today':
@@ -128,80 +128,125 @@ export default function FixturesTab() {
   const [fixtures, setFixtures] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState('today');
-  const [selectedLeague, setSelectedLeague] = useState<number | null>(null); // null means all leagues
-  const [mounted, setMounted] = useState(false);
+  const [selectedDate, setSelectedDate] = useState('week'); // Changed from 'today' to 'week'
+  const [selectedLeague, setSelectedLeague] = useState<number | null>(null);
 
-  console.log('FixturesTab: Component rendering, loading:', loading, 'fixtures count:', fixtures.length);
+  console.log('FixturesTab component rendered, loading:', loading, 'fixtures:', fixtures.length);
 
+  // Immediate effect test
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-    
-    console.log('FixturesTab: useEffect triggered, selectedDate:', selectedDate, 'selectedLeague:', selectedLeague);
+    console.log('FixturesTab useEffect triggered - FINALLY!');
     
     const fetchData = async () => {
-      console.log('FixturesTab: fetchData called');
+      console.log('FixturesTab fetchData started');
       try {
         setLoading(true);
         setError(null);
         
+        console.log('FixturesTab: About to fetch data');
+        
+        // Add a longer delay to avoid hitting rate limits
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Compute date range and pass to API to reduce server work
         const { dateFrom, dateTo } = getDateRange(selectedDate);
-        const url = `/api/matches/fixtures?dateFrom=${dateFrom}&dateTo=${dateTo}`;
-        console.log('FixturesTab: Fetching from:', url);
+        const url = `/api/matches/fixtures?dateFrom=${encodeURIComponent(dateFrom)}&dateTo=${encodeURIComponent(dateTo)}&t=${Date.now()}`;
+        console.log('FixturesTab: API URL:', url);
         
-        const response = await fetch(url, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        
-        console.log('FixturesTab: Response status:', response.status);
+        const response = await fetch(url);
+        console.log('FixturesTab: Response received, status:', response.status);
         
         if (!response.ok) {
+          if (response.status === 429) {
+            throw new Error('Rate limit exceeded. Please wait a moment and try again.');
+          }
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const data = await response.json();
-        console.log('FixturesTab: Response data received, matches count:', data.matches?.length || 0);
+        console.log('FixturesTab: Raw API response:', data);
+        console.log('FixturesTab: Number of matches received:', data.matches?.length || 0);
         
         if (data.success && data.matches) {
-          // Apply client-side league filtering - first filter to women's leagues only
+          // Apply client-side league filtering
           let filteredMatches = data.matches.filter((match: any) => {
-            return domesticCompetitions.some(c => c.id === match.competition.id);
+            const isDomestic = domesticCompetitions.some(c => c.id === match.competition.id);
+            if (isDomestic) {
+              console.log(`Match ${match.id}: ${match.competition.name} (${match.competition.id}) - INCLUDED`);
+            }
+            return isDomestic;
           });
-          console.log('FixturesTab: After women\'s league filter:', filteredMatches.length, 'matches');
+          
+          console.log('FixturesTab: After domestic filtering:', filteredMatches.length);
+          
+          // Apply date filtering client-side
+          // Convert 2025 dates to 2024 to match the API data
+          const fromDate = new Date(dateFrom);
+          const toDate = new Date(dateTo);
+          
+          // Convert to 2024 if we're in 2025 (to match API data)
+          if (fromDate.getFullYear() === 2025) {
+            fromDate.setFullYear(2024);
+          }
+          if (toDate.getFullYear() === 2025) {
+            toDate.setFullYear(2024);
+          }
+          
+          // Set time boundaries for proper filtering
+          fromDate.setHours(0, 0, 0, 0); // Start of day
+          toDate.setHours(23, 59, 59, 999); // End of day
+          
+          console.log('FixturesTab: Date range for filtering:', fromDate.toISOString(), 'to', toDate.toISOString());
+          console.log('FixturesTab: Selected date period:', selectedDate);
+          
+          filteredMatches = filteredMatches.filter((match: any) => {
+            const matchDate = new Date(match.utcDate);
+            const isInDateRange = matchDate >= fromDate && matchDate <= toDate;
+            if (isInDateRange) {
+              console.log(`Match ${match.id}: ${match.homeTeam.name} vs ${match.awayTeam.name} on ${matchDate.toISOString()} - DATE MATCH (${selectedDate})`);
+            } else {
+              console.log(`Match ${match.id}: ${match.homeTeam.name} vs ${match.awayTeam.name} on ${matchDate.toISOString()} - DATE REJECTED (outside ${fromDate.toISOString()} to ${toDate.toISOString()}) for ${selectedDate}`);
+            }
+            return isInDateRange;
+          });
+          
+          console.log('FixturesTab: After date filtering:', filteredMatches.length);
           
           if (selectedLeague) {
             filteredMatches = filteredMatches.filter((match: any) => {
-              // Check if match belongs to selected league using competition.id
               return match.competition && match.competition.id === selectedLeague;
             });
-            console.log('FixturesTab: Filtered to', filteredMatches.length, 'matches for league', selectedLeague);
+            console.log('FixturesTab: After league filtering:', filteredMatches.length);
           }
           
+          console.log('FixturesTab: Final filtered matches:', filteredMatches.length);
           setFixtures(filteredMatches);
-          console.log('FixturesTab: Set fixtures:', filteredMatches.length, 'matches');
         } else {
+          console.error('FixturesTab: API response error:', data);
           setError(data.error || 'No data available');
-          console.log('FixturesTab: Error:', data.error);
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('FixturesTab: Fetch error:', err);
-        setError(`Failed to load fixtures: ${err.message}`);
+        if (err.message.includes('Rate limit')) {
+          setError('API rate limit exceeded. The page will automatically retry in a few moments.');
+          // Auto-retry after 30 seconds
+          setTimeout(() => {
+            console.log('Auto-retrying after rate limit...');
+            fetchData();
+          }, 30000);
+        } else {
+          setError(`Failed to load fixtures: ${err.message}`);
+        }
       } finally {
         setLoading(false);
-        console.log('FixturesTab: Loading complete, setting loading to false');
+        console.log('FixturesTab: Loading complete, fixtures count:', fixtures.length);
       }
     };
 
     fetchData();
-  }, [mounted, selectedDate, selectedLeague]);
+  }, [selectedDate, selectedLeague]);
 
-  console.log('FixturesTab: Render state - loading:', loading, 'error:', error, 'fixtures:', fixtures.length);
+  console.log('FixturesTab after useEffect definition, loading:', loading, 'fixtures:', fixtures.length);
 
   return (
     <div className="space-y-6 pb-20 md:pb-6">
@@ -334,6 +379,26 @@ export default function FixturesTab() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

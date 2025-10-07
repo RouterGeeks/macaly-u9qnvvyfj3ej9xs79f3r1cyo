@@ -1,6 +1,7 @@
+
 "use client";
 
-import { LiveMatch } from '@/lib/sportsApi';
+import { LiveMatch, SportsDataService } from '@/lib/sportsApi';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Clock, MapPin } from 'lucide-react';
@@ -34,13 +35,10 @@ export default function LiveMatchCard({ match }: LiveMatchCardProps) {
           </Badge>
         );
       case 'SCHEDULED':
-        const matchTime = new Date(match.utcDate).toLocaleTimeString('en-US', {
-          hour: '2-digit',
-          minute: '2-digit'
-        });
+        const estTime = SportsDataService.convertToEST(match.utcDate);
         return (
           <Badge variant="outline" className="border-woso-blue text-woso-blue font-bold">
-            {matchTime}
+            {estTime.time} EST
           </Badge>
         );
       case 'POSTPONED':
@@ -152,10 +150,7 @@ export default function LiveMatchCard({ match }: LiveMatchCardProps) {
           <div className="flex items-center space-x-1">
             <Clock size={12} />
             <span data-macaly="match-date">
-              {new Date(match.utcDate).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric'
-              })}
+              {SportsDataService.convertToEST(match.utcDate).date} EST
             </span>
           </div>
         </div>
@@ -163,3 +158,5 @@ export default function LiveMatchCard({ match }: LiveMatchCardProps) {
     </Card>
   );
 }
+
+
