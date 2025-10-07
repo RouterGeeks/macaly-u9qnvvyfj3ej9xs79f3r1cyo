@@ -1,7 +1,8 @@
 "use client";
 // Force server restart to fix 524 timeout
 
-import { useState, Suspense } from 'react';
+import { useState, Suspense, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Navigation from '@/components/Navigation';
 import LiveTab from '@/components/LiveTab';
 import FixturesTab from '@/components/FixturesTab';
@@ -9,8 +10,16 @@ import StandingsTab from '@/components/StandingsTab';
 import NewsTab from '@/components/NewsTab';
 import TabHandler from '@/components/TabHandler';
 
-export default function Home() {
-  const [activeTab, setActiveTab] = useState('home');
+function HomeContent() {
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState(() => {
+    // Initialize with URL parameter if available
+    const tabParam = searchParams.get('tab');
+    if (tabParam && ['home', 'fixtures', 'standings', 'news'].includes(tabParam)) {
+      return tabParam;
+    }
+    return 'home';
+  });
   
   // Add debugging for tab changes
   const handleTabChange = (newTab: string) => {
@@ -42,9 +51,7 @@ export default function Home() {
     <div className="min-h-screen bg-woso-gradient">
       <Navigation activeTab={activeTab} onTabChange={handleTabChange} />
       
-      <Suspense fallback={<div>Loading...</div>}>
-        <TabHandler activeTab={activeTab} setActiveTab={setActiveTab} />
-      </Suspense>
+      <TabHandler activeTab={activeTab} setActiveTab={setActiveTab} />
       
       <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 max-w-4xl" data-macaly="main-content">
         {renderActiveTab()}
@@ -52,3 +59,12 @@ export default function Home() {
     </div>
   );
 }
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HomeContent />
+    </Suspense>
+  );
+}
+

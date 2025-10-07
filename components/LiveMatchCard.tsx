@@ -1,6 +1,7 @@
+
 "use client";
 
-import { LiveMatch } from '@/lib/sportsApi';
+import { LiveMatch, SportsDataService } from '@/lib/sportsApi';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Clock, MapPin } from 'lucide-react';
@@ -18,7 +19,7 @@ export default function LiveMatchCard({ match }: LiveMatchCardProps) {
       case 'IN_PLAY':
         return (
           <Badge className="bg-woso-gradient-electric text-woso-cream font-black shadow-xl border border-woso-purple-400">
-            🔴 LIVE {match.minute ? `${match.minute}'` : ''}
+            <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>LIVE {match.minute ? `${match.minute}'` : ''}
           </Badge>
         );
       case 'FINISHED':
@@ -34,13 +35,10 @@ export default function LiveMatchCard({ match }: LiveMatchCardProps) {
           </Badge>
         );
       case 'SCHEDULED':
-        const matchTime = new Date(match.utcDate).toLocaleTimeString('en-US', {
-          hour: '2-digit',
-          minute: '2-digit'
-        });
+        const estTime = SportsDataService.convertToEST(match.utcDate);
         return (
           <Badge variant="outline" className="border-woso-blue text-woso-blue font-bold">
-            {matchTime}
+            {estTime.time} EST
           </Badge>
         );
       case 'POSTPONED':
@@ -64,14 +62,14 @@ export default function LiveMatchCard({ match }: LiveMatchCardProps) {
     if (match.status === 'SCHEDULED') {
       return (
         <div className="text-center">
-          <div className="text-2xl font-black text-woso-purple-400 bg-woso-black/60 px-3 py-1 rounded-lg">vs</div>
+          <div className="inline-flex items-center justify-center text-lg md:text-2xl font-black text-woso-purple-400 bg-woso-black/60 px-2 py-1 rounded-lg whitespace-nowrap leading-none tracking-tight w-[72px] md:w-[96px]">vs</div>
         </div>
       );
     }
 
     return (
       <div className="text-center">
-        <div className="text-2xl sm:text-4xl font-black text-woso-cream bg-woso-black/80 px-3 py-1 rounded-lg shadow-xl border border-woso-purple-400">
+        <div className="inline-flex items-center justify-center text-xl md:text-3xl font-black text-woso-cream bg-woso-black/80 px-2 py-1 rounded-lg shadow-xl border border-woso-purple-400 whitespace-nowrap leading-none tracking-tight w-[88px] md:w-[108px]">
           {match.score?.fullTime?.home ?? 0} - {match.score?.fullTime?.away ?? 0}
         </div>
       </div>
@@ -91,7 +89,7 @@ export default function LiveMatchCard({ match }: LiveMatchCardProps) {
       </div>
 
       {/* Teams and Score */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 gap-2">
         {/* Home Team */}
         <div className="flex-1 text-center">
           <div className="flex justify-center mb-2" data-macaly="home-team-logo">
@@ -152,10 +150,7 @@ export default function LiveMatchCard({ match }: LiveMatchCardProps) {
           <div className="flex items-center space-x-1">
             <Clock size={12} />
             <span data-macaly="match-date">
-              {new Date(match.utcDate).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric'
-              })}
+              {SportsDataService.convertToEST(match.utcDate).date} EST
             </span>
           </div>
         </div>
@@ -163,3 +158,5 @@ export default function LiveMatchCard({ match }: LiveMatchCardProps) {
     </Card>
   );
 }
+
+

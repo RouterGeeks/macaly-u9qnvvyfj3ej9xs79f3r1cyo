@@ -1,0 +1,26 @@
+[
+  {
+    "content": "Investigate why NWSL games are not appearing in fixtures API",
+    "status": "completed",
+    "priority": "high",
+    "id": "1"
+  },
+  {
+    "content": "Implement EST timezone conversion for all match times",
+    "status": "completed",
+    "priority": "high",
+    "id": "2"
+  },
+  {
+    "content": "Update LiveMatchCard to display times in EST format",
+    "status": "completed",
+    "priority": "medium",
+    "id": "3"
+  },
+  {
+    "content": "Test fixtures API to ensure NWSL games appear correctly",
+    "status": "completed",
+    "priority": "high",
+    "id": "4"
+  }
+]
