@@ -14,8 +14,11 @@ export default function TabHandler({ activeTab, setActiveTab }: TabHandlerProps)
   // Set initial tab based on URL parameter
   useEffect(() => {
     const tabParam = searchParams.get('tab');
+    console.log('TabHandler: URL tab parameter:', tabParam);
+    console.log('TabHandler: Current activeTab:', activeTab);
+    
     if (tabParam && ['home', 'fixtures', 'standings', 'news'].includes(tabParam)) {
-      console.log('Setting initial tab from URL:', tabParam);
+      console.log('TabHandler: Setting initial tab from URL:', tabParam);
       setActiveTab(tabParam);
     }
   }, [searchParams, setActiveTab]);

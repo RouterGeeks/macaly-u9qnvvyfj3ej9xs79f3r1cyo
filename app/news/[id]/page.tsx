@@ -1,3 +1,9 @@
+
+
+
+
+
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -7,9 +13,138 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ArrowLeft, Clock, User, Share2, Copy, Instagram, Facebook, Mail, Check } from 'lucide-react';
 import Link from 'next/link';
+import ReactMarkdown from 'react-markdown';
 
 // Blog posts data (same as NewsTab)
 const blogPosts = [
+  {
+    id: 3,
+    title: "Legends, Drama & The Future of WoSo: Sinclair's Curtain Call, Riley's Goodbye, and a League That Just Won't Chill",
+    excerpt: "If the NWSL had a middle name, it'd be \"plot twist.\" This week gave us teary tributes, chaotic comebacks, and just enough off-field debate to keep the offseason group chats alive.",
+    author: "WoSoLive Editorial",
+    publishedAt: "2025-10-07T12:58:00Z",
+    readTime: "6 min read",
+    category: "Analysis",
+    image: "https://assets.macaly-user-data.dev/lqya212xf2v8ds14rlaczojb/u9qnvvyfj3ej9xs79f3r1cyo/BbG-D8Z-d7RbXTJqi9l_W/tmpw9vhqenq.jpg",
+    tags: ["NWSL", "Sinclair", "Riley", "Legends", "Analysis", "Current"],
+    fullContent: `If the NWSL had a middle name, it'd be "plot twist." This week gave us teary tributes, chaotic comebacks, and just enough off-field debate to keep the offseason group chats alive.
+
+---
+
+###  Sinclair's Farewell: One Last Win for No. 12
+
+In Portland, the **Christine Sinclair Era** officially entered the history books. The Thorns retired her iconic **No. 12** in front of a roaring Providence Park crowd — the club's first-ever jersey retirement.
+
+The ceremony was pure Portland: smoke, scarves, and a sea of red and black chanting her name. But the team didn't stop at nostalgia. **Olivia Moultrie** scored both goals in a 2–1 win over Bay FC, with **Sam Coffey** pulling the strings like a future captain-in-waiting.
+
+Sinclair's resume reads like soccer folklore:
+
+* 12 seasons with the Thorns
+* 3 NWSL titles, 2 Shields
+* 237 appearances, 79 goals, 18,000+ minutes
+* And, of course, *190 international goals* — the most by any player, ever.
+
+The No. 12 is officially retired. Her impact? Untouchable.
+
+---
+
+###  Ali Riley's Final Lap: Class, Grit, and the Heart of L.A.
+
+Down the coast, **Ali Riley** — captain, creator, and certified locker-room legend — confirmed that this season will be her last.
+
+After nearly two decades of global footballing, Riley says she's ready to bow out on her own terms. As she told *The Athletic*:
+
+> "My body still wants to be here, but I also want to go out while I'm proud of the player I am."
+
+From Stanford to Chelsea to Angel City, Riley has been the gold standard for professionalism and perspective. She helped turn Angel City from an idea into a culture, setting a blueprint for every expansion club that follows.
+
+This isn't just a retirement — it's a changing of the guard.
+
+---
+
+###  Money Moves & Mayhem
+
+The headlines keep cashing in.
+
+* **Alyssa Thompson** officially made her **Chelsea debut**, cementing her $1.3 million transfer as one of the biggest in NWSL history.
+* **Gisele Thompson**, meanwhile, locked in with **Angel City through 2029**, because L.A. needed *some* good news this month.
+* **Jaedyn Shaw's Gotham deal** might've cooled off the timeline, but it lit a fire under every GM in the league.
+
+And then there's **Chicago**, still out here causing chaos for fun. The Stars dropped five on Orlando in their new lakeside home, led by **Ludmila**, who's out here turning the Golden Boot race into Cirque du Soleil.
+
+Over in D.C., the **Washington Spirit** delivered pure chaos theatre: a 95th-minute equalizer from **Delphine Cascarino**, followed by a **97th-minute winner** from **Rosemonde Kouassi**. Oh, and they broke their single-season *attendance* record while doing it. No notes.
+
+---
+
+###  Europe's Calling — and the NWSL's Watching
+
+While all this unfolded stateside, the **Champions League** returned with U.S. stars everywhere:
+
+* **Alyssa Thompson** and **Cat Macario** in Chelsea blue,
+* **Caitlin Foord** and **Delphine Cascarino** in Arsenal-Lyon chaos,
+* and a reminder that the transatlantic talent flow isn't slowing down.
+
+The question hanging in the air: can the NWSL keep its stars *and* its soul? Because the transfer fees are going up, and so are the expectations.
+
+---
+
+###  WoSoLive Take
+
+This week felt like watching a timeline hand itself off in real time:
+
+* **Sinclair** took her final bow.
+* **Riley** started her goodbye tour.
+* **Thompson**, **Moultrie**, and **Shaw** showed us the next act.
+
+The NWSL is no longer a fledgling league — it's a living, breathing ecosystem of legacy, ambition, and beautiful chaos. And that chaos? It's exactly why we watch.`
+  },
+  {
+    id: 2,
+    title: "Introducing WoSoLive: Your New Home for Women's Soccer Scores and Competitions",
+    excerpt: "Women's soccer is exploding in popularity around the world — from the sold-out stadiums of the NWSL and WSL to the magic of the Women's World Cup. Fans want more ways to follow their favorite clubs, leagues, and national teams in one place. That's where WoSoLive comes in.",
+    author: "WoSoLive Editorial",
+    publishedAt: "2024-09-07T21:55:00Z",
+    readTime: "4 min read",
+    category: "Feature",
+    image: "https://assets.macaly-user-data.dev/lqya212xf2v8ds14rlaczojb/u9qnvvyfj3ej9xs79f3r1cyo/hUQfocJKZvW2zVrFB-Jh8/tmp34bshfi5.jpg",
+    tags: ["WoSoLive", "Introduction", "Women's Soccer", "Platform", "Community", "Instagram"],
+    fullContent: `Women's soccer is exploding in popularity around the world — from the sold-out stadiums of the NWSL and WSL to the magic of the Women's World Cup. Fans want more ways to follow their favorite clubs, leagues, and national teams in one place. That's where WoSoLive comes in.
+
+🌍 What is WoSoLive?
+
+WoSoLive is a brand-new website dedicated to women's soccer scores, fixtures, and standings across the globe. Instead of digging through multiple sites or apps that mix men's and women's football together, WoSoLive puts the women's game front and center.
+
+Here's what you'll find:
+• 📅 Live Fixtures & Results: Stay up to date with the NWSL, WSL, Liga F, Frauen-Bundesliga, and more.
+• 🌎 International Competitions: Follow the FIFA Women's World Cup, UEFA Women's Champions League, Copa América Femenina, and beyond.
+• 🔍 Smart Filters: Browse by region (North America, Europe, South America, etc.) or by competition type (league, cup, invitational).
+• ⭐ Focus on WoSo Only: No distractions — just women's soccer, all in one place.
+
+📱 WoSoLive on Instagram
+
+We're also building a community on Instagram! Follow @WoSoLive for:
+• Matchday graphics
+• Standout performances
+• Tournament highlights
+• Kit drops and behind-the-scenes moments
+
+The website brings you the data, while Instagram brings you the story.
+
+🚀 Why WoSoLive?
+
+Because the women's game deserves a platform designed for it — with the respect, coverage, and detail fans are asking for. Whether you're following the NWSL playoffs, a Champions League night in Europe, or discovering new leagues like USL Super League or Liga MX Femenil, WoSoLive is here to make it easy.
+
+🌟 What Makes Us Different
+
+• Real-Time Updates: Live scores and standings that refresh every 60 seconds
+• Comprehensive Coverage: From top-tier leagues like NWSL and WSL to emerging competitions worldwide
+• Women's Soccer First: Built specifically for the women's game, not as an afterthought
+• Community Focus: Connect with fellow fans through our growing Instagram community
+
+👉 Ready to explore? You're already here at WoSoLive.com — check out today's fixtures and standings. And don't forget to follow us on Instagram @WoSoLive to keep the conversation going.
+
+Welcome to the future of women's soccer coverage. Welcome to WoSoLive.`
+  },
   {
     id: 1,
     title: "NWSL Rivalry Week: Cascadia Cup? Thorns Take It. Courage? Fumble the PR Bag. Cantore? Makes History.",
@@ -229,8 +364,21 @@ export default function ArticlePage({ params }: ArticlePageProps) {
         {/* Article Content */}
         <Card className="p-8 mb-8">
           <div className="prose prose-lg max-w-none">
-            <div className="whitespace-pre-line text-gray-800 leading-relaxed text-lg" data-macaly="article-content">
-              {article.fullContent}
+            <div className="text-gray-800 leading-relaxed text-lg" data-macaly="article-content">
+              <ReactMarkdown 
+                components={{
+                  h3: ({node, ...props}) => <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4" {...props} />,
+                  hr: ({node, ...props}) => <hr className="my-8 border-gray-200" {...props} />,
+                  p: ({node, ...props}) => <p className="mb-4 leading-relaxed" {...props} />,
+                  ul: ({node, ...props}) => <ul className="mb-4 ml-6 list-disc" {...props} />,
+                  li: ({node, ...props}) => <li className="mb-2" {...props} />,
+                  strong: ({node, ...props}) => <strong className="font-semibold text-gray-900" {...props} />,
+                  em: ({node, ...props}) => <em className="italic" {...props} />,
+                  blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-woso-purple pl-4 italic text-gray-700 my-6" {...props} />
+                }}
+              >
+                {article.fullContent}
+              </ReactMarkdown>
             </div>
           </div>
         </Card>
@@ -292,3 +440,9 @@ export default function ArticlePage({ params }: ArticlePageProps) {
     </div>
   );
 }
+
+
+
+
+
+

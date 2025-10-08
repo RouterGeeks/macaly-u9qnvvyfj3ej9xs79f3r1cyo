@@ -22,6 +22,7 @@ const config: Config = {
         'woso-gradient-teal': 'linear-gradient(135deg, #22D3EE 0%, #06B6D4 50%, #155E75 100%)',
         'woso-gradient-dark': 'linear-gradient(135deg, #374151 0%, #111827 50%, #000000 100%)',
         'woso-gradient-electric': 'linear-gradient(135deg, #A855F7 0%, #3B82F6 50%, #06B6D4 70%, #22D3EE 100%)',
+        'wosolive-gradient': 'linear-gradient(135deg, #A855F7 0%, #6B46C1 50%, #06B6D4 100%)',
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -138,3 +139,4 @@ const config: Config = {
   plugins: [require('tailwindcss-animate')],
 };
 export default config;
+
