@@ -3,6 +3,7 @@
 
 
 
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -12,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Calendar, AlertCircle, Wifi, Filter } from 'lucide-react';
+import { SportsDataService } from '@/lib/sportsApi';
 
 // League ordering data (same as StandingsTab)
 const LEAGUES_ORDER = [
@@ -92,12 +94,16 @@ const getOrderedCompetitions = () => {
 
 const domesticCompetitions = getOrderedCompetitions();
 
-// Helper function to get date range
+// Helper function to get date range using Eastern Time
 const getDateRange = (period: string) => {
-  const today = new Date();
-  const tomorrow = new Date(today);
+  // Get current date in Eastern Time
+  const now = new Date();
+  const easternNow = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+  
+  const today = new Date(easternNow);
+  const tomorrow = new Date(easternNow);
   tomorrow.setDate(today.getDate() + 1);
-  const weekFromNow = new Date(today);
+  const weekFromNow = new Date(easternNow);
   weekFromNow.setDate(today.getDate() + 14); // Extended to 2 weeks to catch more matches
 
   switch (period) {
@@ -128,7 +134,7 @@ export default function FixturesTab() {
   const [fixtures, setFixtures] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState('week'); // Changed from 'today' to 'week'
+  const [selectedDate, setSelectedDate] = useState('today'); // Changed from 'week' to 'today'
   const [selectedLeague, setSelectedLeague] = useState<number | null>(null);
 
   console.log('FixturesTab component rendered, loading:', loading, 'fixtures:', fixtures.length);
@@ -379,6 +385,7 @@ export default function FixturesTab() {
     </div>
   );
 }
+
 
 
 

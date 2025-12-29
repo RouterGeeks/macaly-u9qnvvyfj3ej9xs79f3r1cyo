@@ -3,7 +3,6 @@
 
 
 
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -14,6 +13,7 @@ import { Card } from '@/components/ui/card';
 import { ArrowLeft, Clock, User, Share2, Copy, Instagram, Facebook, Mail, Check } from 'lucide-react';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
+import { SportsDataService } from '@/lib/sportsApi';
 
 // Blog posts data (same as NewsTab)
 const blogPosts = [
@@ -295,12 +295,8 @@ export default function ArticlePage({ params }: ArticlePageProps) {
   };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric',
-      year: 'numeric'
-    });
+    const estTime = SportsDataService.convertToEST(dateString);
+    return `${estTime.date}, ${new Date(dateString).getFullYear()}`;
   };
 
   const getCategoryColor = (category: string) => {
@@ -440,6 +436,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
     </div>
   );
 }
+
 
 
 

@@ -1,6 +1,7 @@
 
 
 
+
 "use client";
 
 import { useState } from 'react';
@@ -10,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import SectionHeader from './SectionHeader';
 import Link from 'next/link';
 import { Clock, User, Share2, Copy, Instagram, Facebook, Mail, Check, ExternalLink } from 'lucide-react';
+import { SportsDataService } from '@/lib/sportsApi';
 
 // Blog posts sorted by newest first
 const blogPosts = [
@@ -264,12 +266,8 @@ export default function NewsTab() {
   };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric',
-      year: 'numeric'
-    });
+    const estTime = SportsDataService.convertToEST(dateString);
+    return `${estTime.date}, ${new Date(dateString).getFullYear()}`;
   };
 
   const getCategoryColor = (category: string) => {
@@ -417,6 +415,7 @@ export default function NewsTab() {
     </div>
   );
 }
+
 
 
 
