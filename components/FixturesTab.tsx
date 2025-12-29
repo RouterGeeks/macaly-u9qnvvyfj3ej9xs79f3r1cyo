@@ -1,109 +1,343 @@
+
+
+
+
+
+
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import LiveMatchCard from './LiveMatchCard';
 import SectionHeader from './SectionHeader';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Calendar, AlertCircle, Wifi } from 'lucide-react';
-import { useFixtures } from '@/hooks/useSportsData';
+import { Calendar, AlertCircle, Wifi, Filter } from 'lucide-react';
+import { SportsDataService } from '@/lib/sportsApi';
+
+// League ordering data (same as StandingsTab)
+const LEAGUES_ORDER = [
+  { "name": "National Women's Soccer League", "short": "NWSL", "country": "USA", "region": "North America", "rank": 1 },
+  { "name": "USL Super League Women", "short": "USL SP", "country": "USA", "region": "North America", "rank": 2 },
+  { "name": "Liga MX Femenil", "short": "Liga MX Femenil", "country": "Mexico", "region": "North America", "rank": 3 },
+  { "name": "Northern Super League", "short": "NSL", "country": "Canada", "region": "North America", "rank": 4 },
+  { "name": "FA Women's Super League", "short": "WSL", "country": "England", "region": "Europe", "rank": 5 },
+  { "name": "Frauen-Bundesliga", "short": "Bundesliga", "country": "Germany", "region": "Europe", "rank": 6 },
+  { "name": "Division 1 Féminine", "short": "D1F", "country": "France", "region": "Europe", "rank": 7 },
+  { "name": "Serie A Women", "short": "Serie A", "country": "Italy", "region": "Europe", "rank": 8 },
+  { "name": "Liga F", "short": "Liga F", "country": "Spain", "region": "Europe", "rank": 9 },
+  { "name": "Primera Division Femenina", "short": "Primera F", "country": "Spain", "region": "Europe", "rank": 10 },
+  { "name": "Eredivisie Women", "short": "Eredivisie", "country": "Netherlands", "region": "Europe", "rank": 11 },
+  { "name": "Scottish Women's Premier League", "short": "SWPL", "country": "Scotland", "region": "Europe", "rank": 12 },
+  { "name": "Damallsvenskan", "short": "Damallsvenskan", "country": "Sweden", "region": "Europe", "rank": 13 },
+  { "name": "Toppserien Women", "short": "Toppserien", "country": "Norway", "region": "Europe", "rank": 14 },
+  { "name": "NIFL Women's Premiership", "short": "NIFL Premiership", "country": "Northern Ireland", "region": "Europe", "rank": 15 },
+  { "name": "WE League", "short": "WE League", "country": "Japan", "region": "Asia & Oceania", "rank": 16 },
+  { "name": "WK League", "short": "WK League", "country": "South Korea", "region": "Asia & Oceania", "rank": 17 },
+  { "name": "A-League Women", "short": "A-League", "country": "Australia", "region": "Asia & Oceania", "rank": 18 },
+  { "name": "Indian Women's League", "short": "IWL", "country": "India", "region": "Asia & Oceania", "rank": 19 },
+  { "name": "Brasileirão Feminino A1", "short": "Brasileirão A1", "country": "Brazil", "region": "South America", "rank": 20 },
+  { "name": "Primera Division A Women (Argentina)", "short": "Primera A", "country": "Argentina", "region": "South America", "rank": 21 },
+  { "name": "Hollywoodbets Super League", "short": "Hollywoodbets", "country": "South Africa", "region": "Africa", "rank": 22 },
+  { "name": "CAF Women's Champions League", "short": "CAF WCL", "country": "Africa", "region": "Africa", "rank": 23 }
+];
+
+// Map league names to competition IDs
+const getOrderedCompetitions = () => {
+  const competitionMap: { [key: string]: { id: number; logo: string } } = {
+    "National Women's Soccer League": { id: 4521, logo: "🇺🇸" },
+    "USL Super League Women": { id: 5498, logo: "🇺🇸" },
+    "Liga MX Femenil": { id: 5206, logo: "🇲🇽" },
+    "Northern Super League": { id: 5602, logo: "🇨🇦" },
+    "FA Women's Super League": { id: 4849, logo: "🏴" },
+    "Frauen-Bundesliga": { id: 5204, logo: "🇩🇪" },
+    "Division 1 Féminine": { id: 5010, logo: "🇫🇷" },
+    "Division 1 Feminine": { id: 5010, logo: "🇫🇷" },
+    "Serie A Women": { id: 5205, logo: "🇮🇹" },
+    "Liga F": { id: 5013, logo: "🇪🇸" },
+    "Primera Division Femenina": { id: 5106, logo: "🇪🇸" },
+    "Eredivisie Women": { id: 5207, logo: "🇳🇱" },
+    "Scottish Women's Premier League": { id: 5223, logo: "🏴" },
+    "Damallsvenskan": { id: 5014, logo: "🇸🇪" },
+    "Toppserien Women": { id: 5015, logo: "🇳🇴" },
+    "NIFL Women's Premiership": { id: 5224, logo: "🇬🇧" },
+    "WE League": { id: 5016, logo: "🇯🇵" },
+    "WK League": { id: 5225, logo: "🇰🇷" },
+    "A-League Women": { id: 4805, logo: "🇦🇺" },
+    "Indian Women's League": { id: 5226, logo: "🇮🇳" },
+    "Brasileirão Feminino A1": { id: 5201, logo: "🇧🇷" },
+    "Brasileirao Feminino A1": { id: 5201, logo: "🇧🇷" },
+    "Primera Division A Women (Argentina)": { id: 5227, logo: "🇦🇷" },
+    "Hollywoodbets Super League": { id: 5228, logo: "🇿🇦" },
+    "CAF Women's Champions League": { id: 5210, logo: "🌍" }
+  };
+
+  const ordered = LEAGUES_ORDER
+    .sort((a, b) => a.rank - b.rank)
+    .map(league => {
+      const comp = competitionMap[league.name];
+      if (!comp) {
+        console.warn('Missing competition mapping for league:', league.name);
+        return null;
+      }
+      return {
+        id: comp.id,
+        name: league.name,
+        shortName: league.short,
+        logo: comp.logo
+      };
+    })
+    .filter(Boolean) as Array<{ id: number; name: string; shortName: string; logo: string }>;
+
+  return ordered;
+};
+
+const domesticCompetitions = getOrderedCompetitions();
+
+// Helper function to get date range using Eastern Time
+const getDateRange = (period: string) => {
+  // Get current date in Eastern Time
+  const now = new Date();
+  const easternNow = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+  
+  const today = new Date(easternNow);
+  const tomorrow = new Date(easternNow);
+  tomorrow.setDate(today.getDate() + 1);
+  const weekFromNow = new Date(easternNow);
+  weekFromNow.setDate(today.getDate() + 14); // Extended to 2 weeks to catch more matches
+
+  switch (period) {
+    case 'today':
+      return {
+        dateFrom: today.toISOString().split('T')[0],
+        dateTo: today.toISOString().split('T')[0]
+      };
+    case 'tomorrow':
+      return {
+        dateFrom: tomorrow.toISOString().split('T')[0],
+        dateTo: tomorrow.toISOString().split('T')[0]
+      };
+    case 'week':
+      return {
+        dateFrom: today.toISOString().split('T')[0],
+        dateTo: weekFromNow.toISOString().split('T')[0]
+      };
+    default:
+      return {
+        dateFrom: today.toISOString().split('T')[0],
+        dateTo: today.toISOString().split('T')[0]
+      };
+  }
+};
 
 export default function FixturesTab() {
-  const [selectedDate, setSelectedDate] = useState('today');
-  const { data: fixtures, loading, error, success } = useFixtures();
+  const [fixtures, setFixtures] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState('today'); // Changed from 'week' to 'today'
+  const [selectedLeague, setSelectedLeague] = useState<number | null>(null);
 
-  console.log('FixturesTab state:', { fixtureCount: fixtures?.length || 0, loading, error, success });
+  console.log('FixturesTab component rendered, loading:', loading, 'fixtures:', fixtures.length);
 
-  // Calculate date ranges
-  const today = new Date().toISOString().split('T')[0];
-  const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-
-  // Filter fixtures based on selected date
-  const filteredFixtures = useMemo(() => {
-    if (!fixtures || selectedDate === 'all') return fixtures || [];
+  // Immediate effect test
+  useEffect(() => {
+    console.log('FixturesTab useEffect triggered - FINALLY!');
     
-    return fixtures.filter(fixture => {
-      const fixtureDate = new Date(fixture.utcDate);
-      const fixtureDateStr = fixtureDate.toISOString().split('T')[0];
-      
-      switch (selectedDate) {
-        case 'today':
-          return fixtureDateStr === today;
-        case 'tomorrow':
-          return fixtureDateStr === tomorrow;
-        case 'week':
-          const weekEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-          return fixtureDateStr >= today && fixtureDateStr <= weekEnd;
-        default:
-          return true;
-      }
-    });
-  }, [fixtures, selectedDate, today, tomorrow]);
-
-  // Group fixtures by competition
-  const fixturesByCompetition = useMemo(() => {
-    const grouped: { [key: string]: typeof filteredFixtures } = {};
-    filteredFixtures.forEach(fixture => {
-      const competitionName = fixture.competition.name || 'Other Competitions';
-      if (!grouped[competitionName]) {
-        grouped[competitionName] = [];
-      }
-      grouped[competitionName].push(fixture);
-    });
-    
-    // Sort matches within each competition by date (earliest upcoming first, then most recent finished)
-    Object.keys(grouped).forEach(competitionName => {
-      grouped[competitionName].sort((a, b) => {
-        const now = new Date();
-        const aDate = new Date(a.utcDate);
-        const bDate = new Date(b.utcDate);
+    const fetchData = async () => {
+      console.log('FixturesTab fetchData started');
+      try {
+        setLoading(true);
+        setError(null);
         
-        // Upcoming matches first (earliest first)
-        if (aDate >= now && bDate >= now) {
-          return aDate.getTime() - bDate.getTime();
+        console.log('FixturesTab: About to fetch data');
+        
+        // Add a longer delay to avoid hitting rate limits
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Compute date range and pass to API to reduce server work
+        const { dateFrom, dateTo } = getDateRange(selectedDate);
+        const url = `/api/matches/fixtures?dateFrom=${encodeURIComponent(dateFrom)}&dateTo=${encodeURIComponent(dateTo)}&t=${Date.now()}`;
+        console.log('FixturesTab: API URL:', url);
+        
+        const response = await fetch(url);
+        console.log('FixturesTab: Response received, status:', response.status);
+        
+        if (!response.ok) {
+          if (response.status === 429) {
+            throw new Error('Rate limit exceeded. Please wait a moment and try again.');
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        // Past matches second (most recent first)
-        if (aDate < now && bDate < now) {
-          return bDate.getTime() - aDate.getTime();
+        const data = await response.json();
+        console.log('FixturesTab: Raw API response:', data);
+        console.log('FixturesTab: Number of matches received:', data.matches?.length || 0);
+        
+        if (data.success && data.matches) {
+          // Apply client-side league filtering
+          let filteredMatches = data.matches.filter((match: any) => {
+            const isDomestic = domesticCompetitions.some(c => c.id === match.competition.id);
+            if (isDomestic) {
+              console.log(`Match ${match.id}: ${match.competition.name} (${match.competition.id}) - INCLUDED`);
+            }
+            return isDomestic;
+          });
+          
+          console.log('FixturesTab: After domestic filtering:', filteredMatches.length);
+          
+          // Apply date filtering client-side
+          // Convert 2025 dates to 2024 to match the API data
+          const fromDate = new Date(dateFrom);
+          const toDate = new Date(dateTo);
+          
+          // Convert to 2024 if we're in 2025 (to match API data)
+          if (fromDate.getFullYear() === 2025) {
+            fromDate.setFullYear(2024);
+          }
+          if (toDate.getFullYear() === 2025) {
+            toDate.setFullYear(2024);
+          }
+          
+          // Set time boundaries for proper filtering
+          fromDate.setHours(0, 0, 0, 0); // Start of day
+          toDate.setHours(23, 59, 59, 999); // End of day
+          
+          console.log('FixturesTab: Date range for filtering:', fromDate.toISOString(), 'to', toDate.toISOString());
+          console.log('FixturesTab: Selected date period:', selectedDate);
+          
+          filteredMatches = filteredMatches.filter((match: any) => {
+            const matchDate = new Date(match.utcDate);
+            const isInDateRange = matchDate >= fromDate && matchDate <= toDate;
+            if (isInDateRange) {
+              console.log(`Match ${match.id}: ${match.homeTeam.name} vs ${match.awayTeam.name} on ${matchDate.toISOString()} - DATE MATCH (${selectedDate})`);
+            } else {
+              console.log(`Match ${match.id}: ${match.homeTeam.name} vs ${match.awayTeam.name} on ${matchDate.toISOString()} - DATE REJECTED (outside ${fromDate.toISOString()} to ${toDate.toISOString()}) for ${selectedDate}`);
+            }
+            return isInDateRange;
+          });
+          
+          console.log('FixturesTab: After date filtering:', filteredMatches.length);
+          
+          if (selectedLeague) {
+            filteredMatches = filteredMatches.filter((match: any) => {
+              return match.competition && match.competition.id === selectedLeague;
+            });
+            console.log('FixturesTab: After league filtering:', filteredMatches.length);
+          }
+          
+          console.log('FixturesTab: Final filtered matches:', filteredMatches.length);
+          setFixtures(filteredMatches);
+        } else {
+          console.error('FixturesTab: API response error:', data);
+          setError(data.error || 'No data available');
         }
-        
-        // Mixed: upcoming before past
-        if (aDate >= now && bDate < now) return -1;
-        if (aDate < now && bDate >= now) return 1;
-        
-        return 0;
-      });
-    });
-    
-    return grouped;
-  }, [filteredFixtures]);
+      } catch (err: any) {
+        console.error('FixturesTab: Fetch error:', err);
+        if (err.message.includes('Rate limit')) {
+          setError('API rate limit exceeded. The page will automatically retry in a few moments.');
+          // Auto-retry after 30 seconds
+          setTimeout(() => {
+            console.log('Auto-retrying after rate limit...');
+            fetchData();
+          }, 30000);
+        } else {
+          setError(`Failed to load fixtures: ${err.message}`);
+        }
+      } finally {
+        setLoading(false);
+        console.log('FixturesTab: Loading complete, fixtures count:', fixtures.length);
+      }
+    };
 
-  const filterButtons = [
-    { id: 'today', label: 'Today' },
-    { id: 'tomorrow', label: 'Tomorrow' },
-    { id: 'week', label: 'This Week' },
-    { id: 'all', label: 'All' }
-  ];
+    fetchData();
+  }, [selectedDate, selectedLeague]);
+
+  console.log('FixturesTab after useEffect definition, loading:', loading, 'fixtures:', fixtures.length);
 
   return (
     <div className="space-y-6 pb-20 md:pb-6">
-      {/* Header */}
-      <SectionHeader 
-        title="Fixtures & Results" 
+      <SectionHeader
+        title="Fixtures & Results"
         subtitle="All matches across women's football"
         showViewAll={false}
       />
+
+      {/* Date Filter */}
+      <div className="flex space-x-2 mb-4">
+        <Button
+          variant={selectedDate === 'today' ? "default" : "outline"}
+          size="sm"
+          onClick={() => setSelectedDate('today')}
+        >
+          Today
+        </Button>
+        <Button
+          variant={selectedDate === 'tomorrow' ? "default" : "outline"}
+          size="sm"
+          onClick={() => setSelectedDate('tomorrow')}
+        >
+          Tomorrow
+        </Button>
+        <Button
+          variant={selectedDate === 'week' ? "default" : "outline"}
+          size="sm"
+          onClick={() => setSelectedDate('week')}
+        >
+          This Week
+        </Button>
+      </div>
+
+      {/* League Filter */}
+      <div className="sticky top-0 z-10 sticky-nav-blur -mx-2 sm:-mx-4 px-2 sm:px-4 py-2">
+        <div className="flex items-center gap-2 mb-2">
+          <Filter className="h-3 w-3 text-gray-500" />
+          <span className="text-xs font-medium text-gray-600">League Filter:</span>
+        </div>
+        
+        <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
+          <Button
+            variant={selectedLeague === null ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSelectedLeague(null)}
+            className={`whitespace-nowrap font-normal text-xs ${
+              selectedLeague === null 
+                ? 'bg-woso-purple-500 text-white hover:bg-woso-purple-600 border-woso-purple-500' 
+                : 'bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100 hover:border-gray-300'
+            }`}
+          >
+            All Leagues
+          </Button>
+          {domesticCompetitions.map((competition) => (
+            <Button
+              key={competition.id}
+              variant={selectedLeague === competition.id ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedLeague(competition.id)}
+              className={`whitespace-nowrap font-normal text-xs ${
+                selectedLeague === competition.id 
+                  ? 'bg-woso-purple-500 text-white hover:bg-woso-purple-600 border-woso-purple-500' 
+                  : 'bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100 hover:border-gray-300'
+              }`}
+            >
+              <span className="mr-2">{competition.logo}</span>
+              {competition.shortName}
+            </Button>
+          ))}
+        </div>
+      </div>
 
       {/* Loading State */}
       {loading && (
         <div className="space-y-4">
           <div className="flex items-center gap-2 text-gray-600">
             <Wifi className="h-4 w-4 animate-pulse" />
-            <span>Loading fixtures and results...</span>
+            <span>Loading fixtures...</span>
           </div>
-          {[...Array(4)].map((_, i) => (
+          <div className="text-sm text-gray-500">
+            <p>⏳ Fetching data from TheSportsDB API (this may take 10-15 seconds)</p>
+            <p>🌍 Loading women's soccer matches...</p>
+          </div>
+          {[...Array(3)].map((_, i) => (
             <Skeleton key={i} className="h-20 w-full" />
           ))}
         </div>
@@ -111,82 +345,71 @@ export default function FixturesTab() {
 
       {/* Error State */}
       {error && !loading && (
-        <Alert className="border-red-200 bg-red-50 mb-6">
+        <Alert className="border-red-200 bg-red-50">
           <AlertCircle className="h-4 w-4 text-red-600" />
           <AlertDescription className="text-red-700">
-            <strong>Connection Issue:</strong> {error}
-            <br />
-            <span className="text-sm text-red-600 mt-1 block">
-              Fixture data may be temporarily unavailable.
-            </span>
+            <strong>Error:</strong> {error}
           </AlertDescription>
         </Alert>
       )}
 
-      {/* Content - only show when not loading */}
-      {!loading && success && (
+      {/* Content */}
+      {!loading && !error && (
         <>
-          {/* Date Filter */}
-          <div className="flex space-x-2 overflow-x-auto pb-2">
-            {filterButtons.map((filter) => (
-              <Button
-                key={filter.id}
-                variant={selectedDate === filter.id ? "default" : "outline"}
-                onClick={() => {
-                  console.log('Date filter selected:', filter.id);
-                  setSelectedDate(filter.id);
-                }}
-                className={`whitespace-nowrap ${
-                  selectedDate === filter.id 
-                    ? 'bg-wosolive-gradient border-0 text-white hover:opacity-90' 
-                    : 'border-woso-purple text-woso-purple hover:bg-woso-purple/10'
-                }`}
-              >
-                <Calendar size={16} className="mr-2" />
-                {filter.label}
-              </Button>
-            ))}
-          </div>
-
-          {/* Competitions Section */}
-          {Object.keys(fixturesByCompetition).length > 0 && (
-            <div className="space-y-6">
-              {Object.entries(fixturesByCompetition).map(([competitionName, matches]) => (
-                <section key={competitionName}>
-                  <div className="flex items-center space-x-3 mb-4">
-                    <span className="text-2xl">⚽</span>
-                    <div>
-                      <h3 className="font-bold text-lg text-gray-900" data-macaly="competition-name">
-                        {competitionName}
-                      </h3>
-                      <p className="text-sm text-gray-600">{matches.length} matches</p>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    {matches.map((match) => (
-                      <LiveMatchCard key={`fixture-${match.id}`} match={match} />
-                    ))}
-                  </div>
-                </section>
+          {fixtures.length > 0 ? (
+            <div className="space-y-4">
+              <h3 className="font-bold text-lg">
+                Found {fixtures.length} fixture{fixtures.length !== 1 ? 's' : ''}
+                {selectedLeague && ` for ${domesticCompetitions.find(c => c.id === selectedLeague)?.shortName || 'selected league'}`}
+              </h3>
+              {fixtures.slice(0, 20).map((match) => (
+                <LiveMatchCard key={match.id} match={match} />
               ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">⚽</div>
+              <h3 className="text-xl font-bold mb-2">No fixtures found</h3>
+              <p className="text-gray-600">
+                No matches available for the selected date{selectedLeague ? ' and league' : ''}.
+              </p>
+              {(selectedDate !== 'today' || selectedLeague) && (
+                <p className="text-sm text-gray-400 mt-2">
+                  Try selecting "Today" or "All Leagues" to see more matches.
+                </p>
+              )}
             </div>
           )}
         </>
       )}
-
-      {/* No fixtures state */}
-      {!loading && success && filteredFixtures.length === 0 && (
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">📅</div>
-          <h3 className="text-xl font-bold text-gray-600 mb-2">No fixtures found</h3>
-          <p className="text-gray-500">
-            {selectedDate === 'all' 
-              ? 'Check back later for upcoming matches' 
-              : `No matches found for ${selectedDate === 'today' ? 'today' : selectedDate === 'tomorrow' ? 'tomorrow' : 'the selected period'}`}
-          </p>
-        </div>
-      )}
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

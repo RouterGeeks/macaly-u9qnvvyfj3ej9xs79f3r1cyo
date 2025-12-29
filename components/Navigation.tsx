@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Home, Calendar, Trophy, Menu, X, Newspaper } from 'lucide-react';
+import Link from 'next/link';
 
 const NavigationTabs = [
   { id: 'home', label: 'Live', icon: Home },
@@ -27,7 +28,7 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
       <header className="bg-woso-black/90 backdrop-blur-lg shadow-2xl relative border-b-4 border-woso-purple-500">
         <div className="px-4 py-5 flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center space-x-4" data-macaly="app-logo">
+          <a href="http://www.wosolive.com" className="flex items-center space-x-4" data-macaly="app-logo">
             <img 
               src="https://assets.macaly-user-data.dev/lqya212xf2v8ds14rlaczojb/u9qnvvyfj3ej9xs79f3r1cyo/N4lc3Jp4Wl1LZhnw4hY3b/woso-emoji.png"
               alt="WoSoLive Logo"
@@ -41,7 +42,7 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
                 Women's Soccer Live
               </div>
             </div>
-          </div>
+          </a>
 
           {/* Mobile Menu Button */}
           <button
@@ -58,17 +59,23 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
               return (
                 <Button
                   key={tab.id}
+                  asChild
                   variant={activeTab === tab.id ? "secondary" : "ghost"}
-                  onClick={() => {
-                    console.log('Tab clicked:', tab.id);
-                    onTabChange(tab.id);
-                  }}
-                  className={`text-woso-cream font-semibold hover:bg-woso-gradient-purple/60 transition-all duration-300 ${
+                  className={`text-woso-cream hover:text-woso-cream font-semibold hover:bg-woso-gradient-purple/60 transition-all duration-300 ${
                     activeTab === tab.id ? 'bg-woso-gradient-electric text-woso-cream border-2 border-woso-blue-400 shadow-xl' : 'hover:shadow-lg'
                   }`}
                 >
-                  <Icon size={18} className="mr-2" />
-                  {tab.label}
+                  <Link 
+                    href={`/?tab=${tab.id}`}
+                    aria-current={activeTab === tab.id ? 'page' : undefined}
+                    onClick={() => {
+                      console.log('Desktop nav clicked:', tab.id);
+                      onTabChange(tab.id);
+                    }}
+                  >
+                    <Icon size={18} className="mr-2" />
+                    {tab.label}
+                  </Link>
                 </Button>
               );
             })}
@@ -84,18 +91,24 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
                 return (
                   <Button
                     key={tab.id}
+                    asChild
                     variant="ghost"
-                    onClick={() => {
-                      console.log('Mobile tab clicked:', tab.id);
-                      onTabChange(tab.id);
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className={`w-full justify-start text-woso-cream font-semibold hover:bg-woso-gradient-purple/60 transition-all duration-300 ${
+                    className={`w-full justify-start text-woso-cream hover:text-woso-cream font-semibold hover:bg-woso-gradient-purple/60 transition-all duration-300 ${
                       activeTab === tab.id ? 'bg-woso-gradient-electric border-l-4 border-woso-teal-400 shadow-lg' : ''
                     }`}
                   >
-                    <Icon size={18} className="mr-3" />
-                    {tab.label}
+                    <Link 
+                      href={`/?tab=${tab.id}`}
+                      aria-current={activeTab === tab.id ? 'page' : undefined}
+                      onClick={() => {
+                        console.log('Mobile menu clicked:', tab.id);
+                        onTabChange(tab.id);
+                        setIsMobileMenuOpen(false);
+                      }}
+                    >
+                      <Icon size={18} className="mr-3" />
+                      {tab.label}
+                    </Link>
                   </Button>
                 );
               })}
@@ -110,8 +123,10 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
           {NavigationTabs.map((tab) => {
             const Icon = tab.icon;
             return (
-              <button
+              <Link
                 key={tab.id}
+                href={`/?tab=${tab.id}`}
+                aria-current={activeTab === tab.id ? 'page' : undefined}
                 onClick={() => {
                   console.log('Bottom nav clicked:', tab.id);
                   onTabChange(tab.id);
@@ -124,7 +139,7 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
               >
                 <Icon size={20} />
                 <span className="text-xs font-medium">{tab.label}</span>
-              </button>
+              </Link>
             );
           })}
         </div>
