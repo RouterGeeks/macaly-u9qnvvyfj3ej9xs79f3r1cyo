@@ -145,45 +145,90 @@ export const mockLeagues: League[] = [
 ];
 
 export const mockMatches: Match[] = [
-  // 🔴 LIVE MATCHES - Global Action Right Now!
+  // Recent finished matches - no live matches today
   {
-    id: "live-1",
+    id: "finished-1",
     homeTeam: mockTeams[2], // Portland Thorns
     awayTeam: mockTeams[3], // San Diego Wave
-    homeScore: 1,
-    awayScore: 0,
-    status: 'live',
-    minute: 67,
+    homeScore: 2,
+    awayScore: 1,
+    status: 'finished',
     league: "NWSL",
-    date: "2025-08-13",
+    date: "2025-09-01",
     time: "22:00",
     venue: "Providence Park"
   },
   {
-    id: "live-2",
+    id: "finished-2",
     homeTeam: mockTeams[10], // Manchester City Women
-    awayTeam: mockTeams[19], // Paris FC Féminin (index 19)
-    homeScore: 0,
+    awayTeam: mockTeams[19], // Paris FC Féminin
+    homeScore: 1,
     awayScore: 2,
-    status: 'live',
-    minute: 85,
-    league: "UWCL",
-    date: "2025-08-13",
+    status: 'finished',
+    league: "WSL",
+    date: "2025-09-02",
     time: "20:00",
     venue: "Etihad Stadium"
   },
   {
-    id: "live-3",
-    homeTeam: mockTeams[29], // Melbourne City FC (corrected index)
-    awayTeam: mockTeams[30], // Sydney FC (corrected index)
-    homeScore: 2,
+    id: "finished-3",
+    homeTeam: mockTeams[29], // Melbourne City FC
+    awayTeam: mockTeams[30], // Sydney FC
+    homeScore: 3,
     awayScore: 1,
-    status: 'live',
-    minute: 90,
+    status: 'finished',
     league: "A-League Women",
-    date: "2025-08-13",
+    date: "2025-09-01",
     time: "12:00",
-    venue: "Noevir Stadium"
+    venue: "Casey Fields"
+  },
+  {
+    id: "scheduled-1",
+    homeTeam: mockTeams[1], // Orlando Pride
+    awayTeam: mockTeams[33], // Club América Femenil
+    homeScore: 0,
+    awayScore: 0,
+    status: 'scheduled',
+    league: "Concacaf W Champions Cup",
+    date: "2025-09-05",
+    time: "22:30",
+    venue: "Estadio Azteca"
+  },
+  {
+    id: "scheduled-2",
+    homeTeam: mockTeams[34], // Chivas Femenil
+    awayTeam: mockTeams[0], // Angel City FC
+    homeScore: 0,
+    awayScore: 0,
+    status: 'scheduled',
+    league: "Concacaf W Champions Cup",
+    date: "2025-09-06",
+    time: "20:00",
+    venue: "Estadio Akron"
+  },
+  {
+    id: "scheduled-3",
+    homeTeam: mockTeams[32], // Club de Fútbol Monterrey Femenil
+    awayTeam: mockTeams[2], // Portland Thorns
+    homeScore: 0,
+    awayScore: 0,
+    status: 'scheduled',
+    league: "Concacaf W Champions Cup",
+    date: "2025-09-07",
+    time: "21:15",
+    venue: "Estadio BBVA"
+  },
+  {
+    id: "scheduled-4",
+    homeTeam: mockTeams[6], // Kansas City Current
+    awayTeam: mockTeams[42], // Vancouver Rise FC
+    homeScore: 0,
+    awayScore: 0,
+    status: 'scheduled',
+    league: "Concacaf W Champions Cup",
+    date: "2025-09-08",
+    time: "19:30",
+    venue: "CPKC Stadium"
   },
 
   // 🇺🇸 NWSL - USA's Premier League
@@ -388,7 +433,7 @@ export const mockMatches: Match[] = [
     venue: "Åråsen Stadion"
   },
 
-  // 🇧🇷 Brasileirão Feminino - Brazilian Magic
+  // 🇧🇷 Campeonato Brasileiro Feminino (Brazil) 🇧🇷
   {
     id: "brasil-1",
     homeTeam: mockTeams[39], // Corinthians Feminino (corrected index)
@@ -396,7 +441,7 @@ export const mockMatches: Match[] = [
     homeScore: 3,
     awayScore: 1,
     status: 'finished',
-    league: "Brasileirão Feminino",
+    league: "Brasileirão",
     date: "2025-08-10",
     time: "15:00",
     venue: "Neo Química Arena"
@@ -410,7 +455,7 @@ export const mockMatches: Match[] = [
     homeScore: 0,
     awayScore: 0,
     status: 'scheduled',
-    league: "Chinese Women's Super League",
+    league: "Chinese WSL",
     date: "2025-08-16",
     time: "16:00",
     venue: "Shanghai Stadium"
@@ -460,3 +505,9 @@ export const getMatchesByLeague = (league: string) => {
   console.log('Getting matches for league:', league);
   return mockMatches.filter(match => match.league === league);
 };
+
+
+
+
+
+

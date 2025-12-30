@@ -2,10 +2,33 @@ import { NextResponse } from 'next/server';
 import { sportsDataService, isAPIKeyConfigured, LiveMatch } from '@/lib/sportsApi';
 import { mockMatches } from '@/lib/mockData';
 
-// Convert mock data to LiveMatch format
+// Convert mock data to LiveMatch format with proper league mapping
 function convertMockToLiveMatch(mockMatch: any): LiveMatch {
+  const leagueMapping = {
+    'NWSL': { id: 5013, name: 'NWSL', emblem: '🇺🇸' },
+    'WSL': { id: 5014, name: 'WSL', emblem: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
+    'Liga F': { id: 5015, name: 'Liga F', emblem: '🇪🇸' },
+    'D1 Arkema': { id: 5016, name: 'D1 Arkema', emblem: '🇫🇷' },
+    'Frauen-Bundesliga': { id: 5017, name: 'Frauen-Bundesliga', emblem: '🇩🇪' },
+    'WE League': { id: 5018, name: 'WE League', emblem: '🇯🇵' },
+    'A-League Women': { id: 5020, name: 'A-League Women', emblem: '🇦🇺' },
+    'Liga MX Femenil': { id: 5021, name: 'Liga MX Femenil', emblem: '🇲🇽' },
+    'Damallsvenskan': { id: 5022, name: 'Damallsvenskan', emblem: '🇸🇪' },
+    'Toppserien': { id: 5023, name: 'Toppserien', emblem: '🇳🇴' },
+    'Brasileirão': { id: 5024, name: 'Brasileirão', emblem: '🇧🇷' },
+    'Chinese WSL': { id: 5025, name: 'Chinese WSL', emblem: '🇨🇳' },
+    'NSL': { id: 5012, name: 'NSL', emblem: '🇨🇦' },
+    'Concacaf W Champions Cup': { id: 5027, name: 'Concacaf W Champions Cup', emblem: '🏆' }
+  };
+
+  const competition = leagueMapping[mockMatch.league] || { 
+    id: 5000, 
+    name: 'Women\'s Soccer League', 
+    emblem: '⚽' 
+  };
+
   return {
-    id: parseInt(mockMatch.id.replace('nsl-', '')) || Math.random() * 1000000,
+    id: parseInt(mockMatch.id.replace(/[^\d]/g, '')) || Math.random() * 1000000,
     homeTeam: {
       id: 1000 + Math.random() * 1000,
       name: mockMatch.homeTeam.name,
@@ -31,9 +54,9 @@ function convertMockToLiveMatch(mockMatch: any): LiveMatch {
     status: mockMatch.status === 'live' ? 'LIVE' : mockMatch.status === 'finished' ? 'FINISHED' : 'SCHEDULED',
     minute: mockMatch.minute || null,
     competition: {
-      id: 5012,
-      name: 'Northern Super League',
-      emblem: 'https://r2.thesportsdb.com/images/media/league/badge/default.png'
+      id: competition.id,
+      name: competition.name,
+      emblem: competition.emblem
     },
     utcDate: new Date(`${mockMatch.date}T${mockMatch.time || '00:00'}:00.000Z`).toISOString(),
     venue: mockMatch.venue || 'TBD'
@@ -102,14 +125,14 @@ export async function GET(request: Request) {
     
     console.log(`📅 API: Filtered to ${fixturesAndResults.length} fixtures and results (excluding live)`);
     
-    // Add NSL matches from mock data - but exclude live matches and filter by date
-    let nslMatches = mockMatches
-      .filter(match => match.league === 'NSL' && match.status !== 'live')
+    // Add all women's league matches from mock data - but exclude live matches and filter by date
+    let allWomensMatches = mockMatches
+      .filter(match => match.status !== 'live')
       .map(mockMatch => convertMockToLiveMatch(mockMatch));
     
     // Apply date filtering if dateFrom/dateTo are specified
     if (dateFrom || dateTo) {
-      nslMatches = nslMatches.filter(match => {
+      allWomensMatches = allWomensMatches.filter(match => {
         const matchDate = match.utcDate.split('T')[0]; // Get YYYY-MM-DD part
         
         if (dateFrom && matchDate < dateFrom) return false;
@@ -133,10 +156,10 @@ export async function GET(request: Request) {
       });
     }
     
-    console.log(`🇨🇦 API: Adding ${nslMatches.length} NSL fixtures/results from Canada (no live)`);
+    console.log(`🌍 API: Adding ${allWomensMatches.length} women's league fixtures/results from all leagues (no live)`);
     
     // Combine all matches and sort by date (earliest first)
-    const allMatches = [...nslMatches, ...fixturesAndResults].sort((a, b) => {
+    const allMatches = [...allWomensMatches, ...fixturesAndResults].sort((a, b) => {
       return new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime();
     });
     
@@ -149,29 +172,29 @@ export async function GET(request: Request) {
       count: allMatches.length,
       dateRange: { dateFrom, dateTo },
       message: allMatches.length > 0 ? 
-        (allApiMatches.length > 0 ? 'Fixtures with NSL matches retrieved successfully! 🇨🇦⚽' : 'NSL fixtures retrieved (external API temporarily unavailable)') : 
+        (allApiMatches.length > 0 ? 'Fixtures with women\'s league matches retrieved successfully! 🌍⚽' : 'Women\'s league fixtures retrieved (external API temporarily unavailable)') : 
         'No fixtures found for this period',
-      warning: allApiMatches.length === 0 ? 'External API temporarily unavailable - showing NSL data only' : undefined
+      warning: allApiMatches.length === 0 ? 'External API temporarily unavailable - showing women\'s league data only' : undefined
     });
   } catch (error) {
     console.error('❌ API Error (fixtures):', error);
     
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     
-    // Return NSL data even if there's an error
-    const nslMatches = mockMatches
-      .filter(match => match.league === 'NSL' && match.status !== 'live')
+    // Return women's league data even if there's an error
+    const allWomensMatches = mockMatches
+      .filter(match => match.status !== 'live')
       .map(mockMatch => convertMockToLiveMatch(mockMatch));
     
     return NextResponse.json(
       { 
         success: true,
         configured: true,
-        matches: nslMatches,
-        count: nslMatches.length,
+        matches: allWomensMatches,
+        count: allWomensMatches.length,
         dateRange: { dateFrom, dateTo },
-        warning: 'External API unavailable - showing NSL data only',
-        message: nslMatches.length > 0 ? 'NSL fixtures retrieved (API unavailable)' : 'No fixtures available'
+        warning: 'External API unavailable - showing women\'s league data only',
+        message: allWomensMatches.length > 0 ? 'Women\'s league fixtures retrieved (API unavailable)' : 'No fixtures available'
       },
       { status: 200 }
     );
@@ -180,3 +203,11 @@ export async function GET(request: Request) {
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 300; // Revalidate every 5 minutes for fixtures
+
+
+
+
+
+
+
+
